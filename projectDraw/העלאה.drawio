@@ -1,0 +1,316 @@
+<mxfile host="app.diagrams.net" modified="2023-12-24T14:09:03.059Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" etag="BesAggnBMdPeyTF5han0" version="22.1.11" type="device" pages="2">
+  <diagram name="‫עמוד-1‬" id="7ujGVMIC4xtKWr2U2t12">
+    <mxGraphModel dx="1914" dy="2135" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="k2CcHp0lFz3wV-T5hJr8-155" value="" style="rounded=0;whiteSpace=wrap;html=1;container=0;" parent="1" vertex="1">
+          <mxGeometry x="150" y="107" width="466.78" height="390" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-6" value="" style="rounded=0;whiteSpace=wrap;html=1;container=0;" parent="1" vertex="1">
+          <mxGeometry x="827" y="-208.91000000000003" width="466.78" height="390" as="geometry" />
+        </mxCell>
+        <mxCell id="bLk-eUr5ARzQPCFEUJqk-20" value="&lt;h1 style=&quot;font-size: 38px;&quot;&gt;העלאת קובץ&amp;nbsp;&lt;/h1&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontSize=38;align=center;" parent="1" vertex="1">
+          <mxGeometry x="340" y="-350" width="720" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="k2CcHp0lFz3wV-T5hJr8-186" value="תיקיית קבצים" style="swimlane;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="906.9994520547943" y="206.08855036855033" width="168.49315068493146" height="59.95085995085995" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="k2CcHp0lFz3wV-T5hJr8-191" target="sE4PfnkllYC4l5VLcqRY-2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="k2CcHp0lFz3wV-T5hJr8-191" value="לוגיקה" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="1043.369315068493" y="-61.02031941031947" width="84.24657534246573" height="71.94103194103195" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="1" source="k2CcHp0lFz3wV-T5hJr8-194" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="917.0260273972531" y="116.0647665847664" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="k2CcHp0lFz3wV-T5hJr8-194" value="הצפנה\פענוח" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="917.0269863013696" y="-61.02135135135143" width="84.24657534246573" height="71.94103194103195" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;startFill=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="832.7794722621047" y="-152.9000000000001" as="sourcePoint" />
+            <mxPoint x="570" y="120" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="k2CcHp0lFz3wV-T5hJr8-210" value="&lt;h1 style=&quot;font-size: 30px;&quot;&gt;לקוח&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontSize=30;align=center;" parent="1" vertex="1">
+          <mxGeometry x="917.0276712328766" y="-255.9072972972973" width="308.90410958904107" height="59.95085995085995" as="geometry" />
+        </mxCell>
+        <mxCell id="q3yeIzA6080SCc1s-Rhl-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;startArrow=none;startFill=0;" parent="1" source="SMqA4ybugY09nhs5ZCD9-4" target="sE4PfnkllYC4l5VLcqRY-4" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1187" y="-15.910000000000025" />
+              <mxPoint x="1187" y="85.08999999999997" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="SMqA4ybugY09nhs5ZCD9-4" value="ממשק משתמש" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" parent="1" vertex="1">
+          <mxGeometry x="1197" y="-55.910000000000025" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="SMqA4ybugY09nhs5ZCD9-7" style="edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;html=1;curved=1;" parent="1" source="SMqA4ybugY09nhs5ZCD9-5" target="SMqA4ybugY09nhs5ZCD9-4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="SMqA4ybugY09nhs5ZCD9-5" value="Actor" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+          <mxGeometry x="1457" y="-45.910000000000025" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="k2CcHp0lFz3wV-T5hJr8-165" value="&lt;br&gt;בסיס נתונים&lt;br&gt;torrent file&amp;nbsp;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;container=0;" parent="1" vertex="1">
+          <mxGeometry x="358.9960975609756" y="570" width="108.95787139689578" height="91.19999999999999" as="geometry" />
+        </mxCell>
+        <mxCell id="k2CcHp0lFz3wV-T5hJr8-163" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;startFill=1;endArrow=classic;endFill=1;" parent="1" source="k2CcHp0lFz3wV-T5hJr8-164" target="k2CcHp0lFz3wV-T5hJr8-165" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="k2CcHp0lFz3wV-T5hJr8-156" value="&lt;h1 style=&quot;font-size: 28px;&quot;&gt;שרת&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontSize=28;align=center;container=0;" parent="1" vertex="1">
+          <mxGeometry x="210" y="60" width="399.5121951219512" height="56.99999999999999" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="1" source="k2CcHp0lFz3wV-T5hJr8-160" target="k2CcHp0lFz3wV-T5hJr8-162" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-50" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="k2CcHp0lFz3wV-T5hJr8-160" target="k2CcHp0lFz3wV-T5hJr8-164" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="k2CcHp0lFz3wV-T5hJr8-160" value="לוגיקה" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;container=0;" parent="1" vertex="1">
+          <mxGeometry x="283.99716186252766" y="177" width="108.95787139689578" height="62.699999999999996" as="geometry" />
+        </mxCell>
+        <mxCell id="k2CcHp0lFz3wV-T5hJr8-162" value="פרוטוקול" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;container=0;" parent="1" vertex="1">
+          <mxGeometry x="392.959645232816" y="117.00000000000006" width="108.95787139689578" height="68.39999999999999" as="geometry" />
+        </mxCell>
+        <mxCell id="k2CcHp0lFz3wV-T5hJr8-164" value="עבודה מול בסיס נתונים" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;container=0;" parent="1" vertex="1">
+          <mxGeometry x="358.9960975609756" y="407" width="108.95787139689578" height="68.39999999999999" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="1" source="k2CcHp0lFz3wV-T5hJr8-167" target="k2CcHp0lFz3wV-T5hJr8-162" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="505" y="227" />
+              <mxPoint x="447" y="227" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-51" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;startFill=1;endArrow=none;endFill=0;" parent="1" source="k2CcHp0lFz3wV-T5hJr8-167" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="508.47500000000036" y="425.05999999999995" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="k2CcHp0lFz3wV-T5hJr8-167" value="הצפנה\פענוח" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;container=0;" parent="1" vertex="1">
+          <mxGeometry x="449.99964523281596" y="266.04" width="108.95787139689578" height="68.39999999999999" as="geometry" />
+        </mxCell>
+        <mxCell id="SMqA4ybugY09nhs5ZCD9-9" value="פירוק קובץ" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="160" y="340" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="c7AHqqmDSoTrRQP3yUCX-1" target="sE4PfnkllYC4l5VLcqRY-8" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c7AHqqmDSoTrRQP3yUCX-1" value="עבודה מול מערכת הקבצים" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;container=0;" parent="1" vertex="1">
+          <mxGeometry x="228.16609756097563" y="417" width="108.95787139689578" height="68.39999999999999" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="1" source="c7AHqqmDSoTrRQP3yUCX-4" target="SMqA4ybugY09nhs5ZCD9-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;startFill=1;" parent="1" source="c7AHqqmDSoTrRQP3yUCX-4" target="c7AHqqmDSoTrRQP3yUCX-1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c7AHqqmDSoTrRQP3yUCX-4" value="בניית קובץ טורנט" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;container=0;" parent="1" vertex="1">
+          <mxGeometry x="243" y="270" width="81.04" height="79.2" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="sE4PfnkllYC4l5VLcqRY-2" target="k2CcHp0lFz3wV-T5hJr8-194" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sE4PfnkllYC4l5VLcqRY-2" value="פרוטוקול" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;container=0;" parent="1" vertex="1">
+          <mxGeometry x="1016.999645232816" y="-168.90999999999997" width="108.95787139689578" height="68.39999999999999" as="geometry" />
+        </mxCell>
+        <mxCell id="q3yeIzA6080SCc1s-Rhl-2" style="edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;rounded=0;startArrow=classic;startFill=1;" parent="1" source="sE4PfnkllYC4l5VLcqRY-4" target="k2CcHp0lFz3wV-T5hJr8-186" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;startFill=1;" parent="1" source="sE4PfnkllYC4l5VLcqRY-4" target="k2CcHp0lFz3wV-T5hJr8-191" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sE4PfnkllYC4l5VLcqRY-4" value="עבודה מול מערכת הקבצים" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;container=0;" parent="1" vertex="1">
+          <mxGeometry x="1016.9960975609754" y="51.089999999999975" width="108.95787139689578" height="68.39999999999999" as="geometry" />
+        </mxCell>
+        <mxCell id="sE4PfnkllYC4l5VLcqRY-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="1" source="c7AHqqmDSoTrRQP3yUCX-4" target="k2CcHp0lFz3wV-T5hJr8-160" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="280" y="208" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sE4PfnkllYC4l5VLcqRY-8" value="תיקיית קבצים" style="swimlane;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="155.54945205479433" y="554.9985503685504" width="168.49315068493146" height="59.95085995085995" as="geometry" />
+        </mxCell>
+        <mxCell id="q3yeIzA6080SCc1s-Rhl-6" style="edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=1;entryDx=0;entryDy=0;startArrow=classicThin;startFill=1;rounded=0;" parent="1" source="q3yeIzA6080SCc1s-Rhl-5" target="sE4PfnkllYC4l5VLcqRY-4" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1187" y="151.08999999999997" />
+              <mxPoint x="1137" y="151.08999999999997" />
+              <mxPoint x="1137" y="109.08999999999997" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="q3yeIzA6080SCc1s-Rhl-5" value="תקיית קבצים מנוטרת" style="swimlane;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="1102.3394520547943" y="206.08855036855033" width="168.49315068493146" height="59.95085995085995" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fillColor=#ffcd28;gradientColor=#ffa500;strokeColor=#d79b00;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="875" y="360" />
+              <mxPoint x="744" y="360" />
+            </Array>
+            <mxPoint x="874.902739726027" y="152.03528255528227" as="sourcePoint" />
+            <mxPoint x="609.5200000000054" y="385.1699999999996" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0;entryDx=0;entryDy=0;" parent="1" source="BKnl5u-EvrkkQkpxBSiw-6" target="k2CcHp0lFz3wV-T5hJr8-167" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="567.3927397260272" y="198.94528255528212" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.43;entryY=0.973;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;startArrow=classic;startFill=1;" parent="1" source="k2CcHp0lFz3wV-T5hJr8-194" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="869.0054794520543" y="-118.9071253071254" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="k2CcHp0lFz3wV-T5hJr8-167" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="568.9950000000003" y="349.1999999999998" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-24" value="" style="rounded=0;whiteSpace=wrap;html=1;container=0;" parent="1" vertex="1">
+          <mxGeometry x="827" y="406.99999999999994" width="466.78" height="390" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-25" value="תיקיית קבצים" style="swimlane;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="906.9994520547943" y="821.9985503685502" width="168.49315068493146" height="59.95085995085995" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="khFV0nehZLTZZqarwcwT-27" target="khFV0nehZLTZZqarwcwT-37" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-27" value="לוגיקה" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="1043.369315068493" y="554.8896805896804" width="84.24657534246573" height="71.94103194103195" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.994;entryY=0.383;entryDx=0;entryDy=0;startArrow=classic;startFill=1;entryPerimeter=0;" parent="1" source="khFV0nehZLTZZqarwcwT-29" target="BKnl5u-EvrkkQkpxBSiw-8" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="917.0260273972531" y="731.9747665847667" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="930" y="658" />
+              <mxPoint x="927" y="658" />
+              <mxPoint x="927" y="720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-29" value="הצפנה\פענוח" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="917.0269863013696" y="554.8886486486485" width="84.24657534246573" height="71.94103194103195" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-31" value="&lt;h1 style=&quot;font-size: 30px;&quot;&gt;לקוח&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;fontSize=30;align=center;" parent="1" vertex="1">
+          <mxGeometry x="917.0276712328766" y="360.00270270270266" width="308.90410958904107" height="59.95085995085995" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;startArrow=none;startFill=0;" parent="1" source="khFV0nehZLTZZqarwcwT-33" target="khFV0nehZLTZZqarwcwT-40" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1187" y="600" />
+              <mxPoint x="1187" y="701" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-33" value="ממשק משתמש" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" parent="1" vertex="1">
+          <mxGeometry x="1197" y="560" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-34" style="edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;html=1;curved=1;" parent="1" source="khFV0nehZLTZZqarwcwT-35" target="khFV0nehZLTZZqarwcwT-33" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-35" value="Actor" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+          <mxGeometry x="1457" y="570" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="khFV0nehZLTZZqarwcwT-37" target="khFV0nehZLTZZqarwcwT-29" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-37" value="פרוטוקול" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;container=0;" parent="1" vertex="1">
+          <mxGeometry x="1016.999645232816" y="447" width="108.95787139689578" height="68.39999999999999" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-38" style="edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;rounded=0;startArrow=classic;startFill=1;" parent="1" source="khFV0nehZLTZZqarwcwT-40" target="khFV0nehZLTZZqarwcwT-25" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;startFill=1;" parent="1" source="khFV0nehZLTZZqarwcwT-40" target="khFV0nehZLTZZqarwcwT-27" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-40" value="עבודה מול מערכת הקבצים" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;container=0;" parent="1" vertex="1">
+          <mxGeometry x="1016.9960975609754" y="667" width="108.95787139689578" height="68.39999999999999" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-41" style="edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=1;entryDx=0;entryDy=0;startArrow=classicThin;startFill=1;rounded=0;" parent="1" source="khFV0nehZLTZZqarwcwT-42" target="khFV0nehZLTZZqarwcwT-40" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1187" y="767" />
+              <mxPoint x="1137" y="767" />
+              <mxPoint x="1137" y="725" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-42" value="תקיית קבצים מנוטרת" style="swimlane;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="1102.3394520547943" y="821.9985503685502" width="168.49315068493146" height="59.95085995085995" as="geometry" />
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-52" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=none;startFill=0;fillColor=#ffcd28;gradientColor=#ffa500;strokeColor=#d79b00;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="832.7794624193584" y="732" as="sourcePoint" />
+            <mxPoint x="508.47500000000036" y="496.99999999999955" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.43;entryY=0.973;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;startArrow=classic;startFill=1;" parent="1" source="khFV0nehZLTZZqarwcwT-29" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="869.0054794520543" y="497.0028746928747" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="khFV0nehZLTZZqarwcwT-46" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;fillColor=#d5e8d4;gradientColor=#97d077;strokeColor=#82b366;" parent="1" target="BKnl5u-EvrkkQkpxBSiw-6" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="860" y="250" />
+              <mxPoint x="670" y="250" />
+              <mxPoint x="670" y="155" />
+            </Array>
+            <mxPoint x="860" y="410" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BKnl5u-EvrkkQkpxBSiw-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" edge="1" parent="1" source="6Rkx97j6SsxZAEAPjjbP-1" target="SMqA4ybugY09nhs5ZCD9-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="6Rkx97j6SsxZAEAPjjbP-1" value="תקינות" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="1197" y="70" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="BKnl5u-EvrkkQkpxBSiw-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;startFill=1;" edge="1" parent="1" source="6Rkx97j6SsxZAEAPjjbP-2" target="khFV0nehZLTZZqarwcwT-33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="6Rkx97j6SsxZAEAPjjbP-2" value="תקינות" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
+          <mxGeometry x="1197" y="679.9999999999999" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="BKnl5u-EvrkkQkpxBSiw-4" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;תקשורת רגילה&amp;nbsp;&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="832.78" y="-195.96" width="75.91" height="75.91" as="geometry" />
+        </mxCell>
+        <mxCell id="BKnl5u-EvrkkQkpxBSiw-6" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;תקשורת רגילה&amp;nbsp;&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="528.47" y="117" width="76.78" height="76.78" as="geometry" />
+        </mxCell>
+        <mxCell id="BKnl5u-EvrkkQkpxBSiw-8" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;העלאה&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#ffcd28;strokeColor=#d79b00;gradientColor=#ffa500;" vertex="1" parent="1">
+          <mxGeometry x="830" y="690" width="77" height="77" as="geometry" />
+        </mxCell>
+        <mxCell id="BKnl5u-EvrkkQkpxBSiw-10" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;העלאה&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#ffcd28;strokeColor=#d79b00;gradientColor=#ffa500;" vertex="1" parent="1">
+          <mxGeometry x="836.4" y="80" width="77" height="77" as="geometry" />
+        </mxCell>
+        <mxCell id="BKnl5u-EvrkkQkpxBSiw-11" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;העלאה&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#ffcd28;strokeColor=#d79b00;gradientColor=#ffa500;" vertex="1" parent="1">
+          <mxGeometry x="481.96" y="424.47" width="77" height="77" as="geometry" />
+        </mxCell>
+        <mxCell id="BKnl5u-EvrkkQkpxBSiw-13" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;העלאה&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#ffcd28;strokeColor=#d79b00;gradientColor=#ffa500;" vertex="1" parent="1">
+          <mxGeometry x="532.51" y="343" width="77" height="77" as="geometry" />
+        </mxCell>
+        <mxCell id="BKnl5u-EvrkkQkpxBSiw-14" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;תקשורת רגילה&amp;nbsp;&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="827" y="412.81" width="76.78" height="76.78" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="w-Ln1UiFjOK_LUurywYE" name="‫עמוד-2‬">
+    <mxGraphModel dx="798" dy="411" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

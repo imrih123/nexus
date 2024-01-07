@@ -1,0 +1,37 @@
+<mxfile host="app.diagrams.net" modified="2023-12-03T14:40:25.328Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36" etag="senl00BfgRv227NkcJIJ" version="22.1.5" type="device">
+  <diagram name="‫עמוד-1‬" id="7ujGVMIC4xtKWr2U2t12">
+    <mxGraphModel dx="954" dy="1231" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bLk-eUr5ARzQPCFEUJqk-3" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="220" y="250" width="490" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="apId_ucm8zy4JaB7jrlC-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="bLk-eUr5ARzQPCFEUJqk-6" target="bLk-eUr5ARzQPCFEUJqk-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bLk-eUr5ARzQPCFEUJqk-6" value="פענוח כל חלק" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#ffff88;strokeColor=#36393d;fontSize=20;" parent="1" vertex="1">
+          <mxGeometry x="560" y="270" width="140" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="bLk-eUr5ARzQPCFEUJqk-7" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;השוואת hash&amp;nbsp;&lt;br&gt;של כל הקובץ&lt;br&gt;&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fontSize=20;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="260" y="280" width="140" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="apId_ucm8zy4JaB7jrlC-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="bLk-eUr5ARzQPCFEUJqk-11" target="bLk-eUr5ARzQPCFEUJqk-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bLk-eUr5ARzQPCFEUJqk-11" value="השוואת hash של כל חלק&amp;nbsp;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#ffcc99;strokeColor=#36393d;fontSize=20;" parent="1" vertex="1">
+          <mxGeometry x="560" y="515" width="140" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="apId_ucm8zy4JaB7jrlC-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="bLk-eUr5ARzQPCFEUJqk-13" target="bLk-eUr5ARzQPCFEUJqk-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bLk-eUr5ARzQPCFEUJqk-13" value="חיבור חלק לפי מספור&amp;nbsp;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#ffcccc;strokeColor=#36393d;fontSize=20;" parent="1" vertex="1">
+          <mxGeometry x="260" y="514.5" width="140" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="bLk-eUr5ARzQPCFEUJqk-20" value="&lt;h1&gt;חיבור קובץ&lt;/h1&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="375" y="140" width="190" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
