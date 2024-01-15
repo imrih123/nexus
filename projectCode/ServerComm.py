@@ -1,7 +1,7 @@
 import socket
 import select
 import threading
-
+import Encryption_Decryption
 
 class ServerComm(object):
     def __init__(self, port, message_queue, zfill_number):
@@ -15,26 +15,55 @@ class ServerComm(object):
         self.message_queue = message_queue
         self.zfill_number = zfill_number
         self.open_clients = {}
+        self.is_socket_open = True
+        threading.Thread(target=self._recv_messages()).start()
 
-    def _Recv_messages(self):
+    def _recv_messages(self):
+        """
+
+        :return:
+        """
         self.server_socket = socket.socket()
-        self.server_socket.bind(("0.0.0.0", 1500))
+        self.server_socket.bind(("0.0.0.0", self.port))
         self.server_socket.listen(3)
-        while True:
+        while self.is_socket_open:
             rlist, wlist, xlist = select.select([self.server_socket] + list(self.open_clients.keys()),
                                                 list(self.open_clients.keys()), [])
             for current_socket in rlist:
                 if current_socket is self.server_socket:
-                    threading.Thread(target=self._Xchange_key).start()
+                    threading.Thread(target=self._xchange_key).start()
 
-    def _Xchange_key(self):
+    def _xchange_key(self):
         """
 
         :return:
         """
         (new_client, addr) = self.server_socket.accept()
-        # exchange keys and create cryptObject
-        self.open_clients[new_client] = [addr[0], cryptobject]
+        a, A = Encryption_Decryption.AES_encryption.get_dif_Num()
+        opcode = ""
+        len_of_key = 0
+        len_of_A = str(len(A)).zfill(4)
+        try:
+            new_client.send(f"00{len_of_A}{A}".encode())
+        except Exception as e:
+            print(e)
+        try:
+            opcode = new_client.recv(2).decode()
+        except Exception as e:
+            print(e)
+        if opcode is "00":
+            try:
+                len_of_key = new_client.recv(4).decode()
+            except Exception as e:
+                print(e)
+            try:
+                B = int(new_client.recv(int(len_of_key)).decode())
+            except Exception as e:
+                print(e)
+            else:
+                cryptobject = Encryption_Decryption.AES_encryption.set_key(B,a)
+                # exchange keys and create cryptObject
+                self.open_clients[new_client] = [addr[0], cryptobject]
 
     def _find_socket_by_ip(self, find_ip):
         """
@@ -45,6 +74,36 @@ class ServerComm(object):
         for socket, ip in self.open_clients:
             if ip == find_ip:
                 return socket
-        return None
 
-    def send
+    def send(self, message, ip):
+        """
+
+        :param message:
+        :param ip:
+        :return:
+        """
+        current_socket = self._find_socket_by_ip(ip)
+        encrypt_msg = self.open_clients[current_socket][1].eecrypt(message.encode())
+        len_encrypt_msg = str(len(encrypt_msg)).zfill(self.zfill_number).encode()
+        current_socket.send(len_encrypt_msg+encrypt_msg)
+
+    def sendall(self, message):
+        """
+
+        :param message:
+        :return:
+        """
+        for ip in self.open_clients.keys():
+            self.send(message, ip)
+
+    def _recv_file(self):
+        """
+
+        :return:
+        """
+    def close_socket(self):
+        """
+
+        :return:
+        """
+        self.is_socket_open = False
