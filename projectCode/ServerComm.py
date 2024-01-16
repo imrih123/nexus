@@ -2,6 +2,9 @@ import socket
 import select
 import threading
 import Encryption_Decryption
+import sys
+import queue
+import time
 
 
 class ServerComm(object):
@@ -35,7 +38,20 @@ class ServerComm(object):
                 if current_socket is self.server_socket:
                     threading.Thread(target=self._xchange_key).start()
 
-                # else:
+                else:
+                    print(1)
+                    try:
+                        len_of_message = int(current_socket.recv(self.zfill_number).decode())
+                    except Exception as e:
+                        print(e)
+                        sys.exit()
+                    try:
+                        encrypt_message = current_socket.recv(len_of_message).decode()
+                    except Exception as e:
+                        print(e)
+                        sys.exit()
+                    message = self.open_clients[current_socket][1].decrypt(encrypt_message)
+                    self.message_queue.put(message)
 
     def _xchange_key(self):
         """
@@ -51,7 +67,7 @@ class ServerComm(object):
             opcode = new_client.recv(2).decode()
         except Exception as e:
             print(e)
-        if opcode is "00":
+        if opcode == "00":
             try:
                 len_of_key = new_client.recv(4).decode()
             except Exception as e:
@@ -75,9 +91,9 @@ class ServerComm(object):
         :param find_ip:
         :return:
         """
-        for socket, ip in self.open_clients:
-            if ip == find_ip:
-                return socket
+        for key, value in self.open_clients:
+            if value[0] == find_ip:
+                return key
 
     def send(self, message, ip):
         """
@@ -120,3 +136,9 @@ class ServerComm(object):
         :return:
         """
         self.is_socket_open = False
+
+
+if __name__ == '__main__':
+    q = queue.Queue()
+    s = ServerComm(1500, q, 4)
+    print(q.get())
