@@ -3,6 +3,7 @@ import select
 import threading
 import Encryption_Decryption
 
+
 class ServerComm(object):
     def __init__(self, port, message_queue, zfill_number):
         """
@@ -15,6 +16,7 @@ class ServerComm(object):
         self.message_queue = message_queue
         self.zfill_number = zfill_number
         self.open_clients = {}
+        self.server_socket = None
         self.is_socket_open = True
         threading.Thread(target=self._recv_messages()).start()
 
@@ -33,6 +35,8 @@ class ServerComm(object):
                 if current_socket is self.server_socket:
                     threading.Thread(target=self._xchange_key).start()
 
+                # else:
+
     def _xchange_key(self):
         """
 
@@ -43,10 +47,6 @@ class ServerComm(object):
         opcode = ""
         len_of_key = 0
         len_of_A = str(len(A)).zfill(4)
-        try:
-            new_client.send(f"00{len_of_A}{A}".encode())
-        except Exception as e:
-            print(e)
         try:
             opcode = new_client.recv(2).decode()
         except Exception as e:
@@ -64,6 +64,10 @@ class ServerComm(object):
                 cryptobject = Encryption_Decryption.AES_encryption.set_key(B,a)
                 # exchange keys and create cryptObject
                 self.open_clients[new_client] = [addr[0], cryptobject]
+            try:
+                new_client.send(f"00{len_of_A}{A}".encode())
+            except Exception as e:
+                print(e)
 
     def _find_socket_by_ip(self, find_ip):
         """
@@ -83,9 +87,10 @@ class ServerComm(object):
         :return:
         """
         current_socket = self._find_socket_by_ip(ip)
-        encrypt_msg = self.open_clients[current_socket][1].eecrypt(message.encode())
-        len_encrypt_msg = str(len(encrypt_msg)).zfill(self.zfill_number).encode()
-        current_socket.send(len_encrypt_msg+encrypt_msg)
+        if current_socket is not None:
+            encrypt_msg = self.open_clients[current_socket][1].eecrypt(message.encode())
+            len_encrypt_msg = str(len(encrypt_msg)).zfill(self.zfill_number).encode()
+            current_socket.send(len_encrypt_msg+encrypt_msg)
 
     def sendall(self, message):
         """
@@ -96,11 +101,19 @@ class ServerComm(object):
         for ip in self.open_clients.keys():
             self.send(message, ip)
 
-    def _recv_file(self):
+    def _recv_file(self, ip, len_message, file):
         """
 
         :return:
         """
+        current_socket = self._find_socket_by_ip(ip)
+        data_part = bytearray()
+        while len_message >= 1024:
+            data_part += current_socket.recv(1024)
+            len_message -= 1024
+        if len_message != 0:
+            data_part += current_socket.recv(len_message)
+
     def close_socket(self):
         """
 
