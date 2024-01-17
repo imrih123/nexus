@@ -6,10 +6,10 @@ import sys
 import queue
 import time
 
+
 class Clientcomm(object):
     def __init__(self, server_ip, message_queue, port, zfill_number):
         """
-
         :param server_ip:
         :param message_queue:
         :param port:
@@ -22,11 +22,10 @@ class Clientcomm(object):
         self.client_socket = None
         self.crypt_object = None
         self.is_socket_open = True
-        threading.Thread(target=self._recv_messages()).start()
+        threading.Thread(target=self._recv_messages).start()
 
     def _recv_messages(self):
         """
-
         :return:
         """
         self.client_socket = socket.socket()
@@ -48,7 +47,6 @@ class Clientcomm(object):
 
     def _recv_file(self, opcode, file_name, file_length):
         """
-
         :param file_name:
         :param file_length:
         :return:
@@ -63,7 +61,6 @@ class Clientcomm(object):
 
     def _xchange_key(self):
         """
-
         :return:
         """
         b, B = Encryption_Decryption.AES_encryption.get_dif_Num()
@@ -94,25 +91,19 @@ class Clientcomm(object):
 
     def send(self, message):
         """
-
         :param message:
         :return:
         """
         if self.crypt_object is not None and self.is_socket_open:
             encrypt_msg = self.crypt_object.encrypt(message)
-            print(encrypt_msg)
             len_encrypt_msg = str(len(encrypt_msg)).zfill(self.zfill_number).encode()
-            print(len_encrypt_msg)
             try:
                 self.client_socket.send(len_encrypt_msg + encrypt_msg)
-                print((len_encrypt_msg + encrypt_msg).decode())
-                print(self.crypt_object.decrypt(encrypt_msg))
             except Exception as e:
                 print(e)
 
     def close_socket(self):
         """
-
         :return:
         """
         self.is_socket_open = False
@@ -120,6 +111,6 @@ class Clientcomm(object):
 
 if __name__ == '__main__':
     q = queue.Queue()
-    c = Clientcomm("192.168.4.89", q, 1500, 4)
-    time.sleep(5)
+    c = Clientcomm("192.168.4.97", q, 1500, 4)
+    time.sleep(1)
     c.send("hello")

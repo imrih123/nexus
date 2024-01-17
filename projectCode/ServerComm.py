@@ -6,7 +6,6 @@ import sys
 import queue
 import time
 
-
 class ServerComm(object):
     def __init__(self, port, message_queue, zfill_number):
         """
@@ -21,7 +20,7 @@ class ServerComm(object):
         self.open_clients = {}
         self.server_socket = None
         self.is_socket_open = True
-        threading.Thread(target=self._recv_messages()).start()
+        threading.Thread(target=self._recv_messages).start()
 
     def _recv_messages(self):
         """
@@ -36,10 +35,9 @@ class ServerComm(object):
                                                 list(self.open_clients.keys()), [])
             for current_socket in rlist:
                 if current_socket is self.server_socket:
+                    #self._xchange_key()
                     threading.Thread(target=self._xchange_key).start()
-
                 else:
-                    print(1)
                     try:
                         len_of_message = int(current_socket.recv(self.zfill_number).decode())
                     except Exception as e:
@@ -70,9 +68,6 @@ class ServerComm(object):
         if opcode == "00":
             try:
                 len_of_key = new_client.recv(4).decode()
-            except Exception as e:
-                print(e)
-            try:
                 B = int(new_client.recv(int(len_of_key)).decode())
             except Exception as e:
                 print(e)
