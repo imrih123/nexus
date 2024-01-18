@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
     with open (r"T:\public\יב\imri\projectCode\files\cat.jpg", 'rb') as f:
         data = f.read()
-    data+= "reef".encode()
+    data= "reef"
     #print(type(data))
 
     print(len(data))
@@ -113,10 +113,11 @@ if __name__ == '__main__':
     print(len(encM), type(encM))
 
     decM = keyclient.decrypt(encM)
-    data , path = decM[:8532], decM[8532:]
-    path.decode()
-    print(path)
-    print(len(decM))
+    print(decM)
+    # data , path = decM[:8532], decM[8532:]
+    # path.decode()
+    # print(path)
+    # print(len(decM))
     #with open(fr"T:\public\יב\imri\projectCode\files\cat22.jpg", 'wb') as f:
         #f.write(decM)
     #with open(r"temp.jpg", 'wb') as f:

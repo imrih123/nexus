@@ -6,6 +6,7 @@ import sys
 import queue
 import time
 import setting
+import serverProtocol
 
 
 class ServerComm(object):
@@ -36,7 +37,6 @@ class ServerComm(object):
             rlist, wlist, xlist = select.select([self.server_socket] + list(self.open_clients.keys()),
                                                 list(self.open_clients.keys()), [], 0.3)
             for current_socket in rlist:
-
                 if current_socket is self.server_socket:
                     (new_client, addr) = self.server_socket.accept()
                     # self._xchange_key()
@@ -44,11 +44,7 @@ class ServerComm(object):
                 else:
                     try:
                         len_of_message = int(current_socket.recv(self.zfill_number).decode())
-                    except Exception as e:
-                        print(e)
-                        sys.exit()
-                    try:
-                        encrypt_message = current_socket.recv(len_of_message).decode()
+                        encrypt_message = current_socket.recv(len_of_message)
                     except Exception as e:
                         print(e)
                         sys.exit()
@@ -56,6 +52,7 @@ class ServerComm(object):
                     if self.port in [setting.GENERAL_PORT, setting.NITUR_PORT]:
                         self.message_queue.put(message)
                     else:
+                        print("123")
                         self._recv_file(current_socket, message)
 
     def _xchange_key(self, new_client, addr):
@@ -65,28 +62,25 @@ class ServerComm(object):
         """
 
         a, A = Encryption_Decryption.AES_encryption.get_dif_Num()
-        opcode = ""
-        len_of_key = 0
-        len_of_A = str(len(A)).zfill(4)
+
         try:
-            opcode = new_client.recv(2).decode()
+            len_of_message = new_client.recv(self.zfill_number).decode()
+            message = new_client.recv(int(len_of_message)).decode()
         except Exception as e:
             print(e)
-        if opcode == "00":
-            try:
-                len_of_key = new_client.recv(4).decode()
-                B = int(new_client.recv(int(len_of_key)).decode())
-            except Exception as e:
-                print(e)
-            else:
-                cryptobject = Encryption_Decryption.AES_encryption.set_key(B,a)
-                # exchange keys and create cryptObject
-                self.open_clients[new_client] = [addr[0], cryptobject]
-                print(self.open_clients)
-            try:
-                new_client.send(f"00{len_of_A}{A}".encode())
-            except Exception as e:
-                print(e)
+        else:
+            B = int(message[2:])
+            if message[:2] == "00":
+                message = serverProtocol.serverProtocol.build_part_of_key(A)
+                len_of_message = str(len(message)).zfill(self.zfill_number)
+                try:
+                    new_client.send(f"{len_of_message}{message}".encode())
+                except Exception as e:
+                    print(e)
+                else:
+                    cryptobject = Encryption_Decryption.AES_encryption.set_key(B,a)
+                    # exchange keys and create cryptObject
+                    self.open_clients[new_client] = [addr[0], cryptobject]
 
     def _find_socket_by_ip(self, find_ip):
         """
@@ -125,8 +119,8 @@ class ServerComm(object):
 
         :return:
         """
-        opcode, params = server_protocol.unpack(message)
-        len_data = params[1]
+        opcode, params = serverProtocol.serverProtocol.unpack_file(message)
+        len_data = params[0]
         data = bytearray()
         while len_data >= 1024:
             data.extend(current_socket.recv(1024))
@@ -135,8 +129,7 @@ class ServerComm(object):
             data.extend(current_socket.recv(len_data))
         data = self.open_clients[current_socket][1].decrypt(data)
 
-        string_params = "$%$".join(params)
-        self.message_queue.put((self.open_clients[current_socket][0], f"{opcode}$%${string_params}"))
+        self.message_queue.put((self.open_clients[current_socket][0], params))
 
     def close_socket(self):
         """
@@ -148,6 +141,6 @@ class ServerComm(object):
 
 if __name__ == '__main__':
     q = queue.Queue()
-    s = ServerComm(1500, q, 4)
+    s = ServerComm(1500, q, 8)
     while True:
         print(q.get())

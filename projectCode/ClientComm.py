@@ -5,6 +5,7 @@ import Encryption_Decryption
 import sys
 import queue
 import time
+import clientProtocol
 
 
 class Clientcomm(object):
@@ -64,41 +65,29 @@ class Clientcomm(object):
         :return:
         """
         b, B = Encryption_Decryption.AES_encryption.get_dif_Num()
-        len_of_B = str(len(B)).zfill(4)
-        opcode = ""
-        len_of_key = 0
+        message = clientProtocol.clientProtocol.build_part_of_key(B)
+        len_of_message = str(len(message)).zfill(self.zfill_number)
         try:
-            self.client_socket.send(f"00{len_of_B}{B}".encode())
+            self.client_socket.send(f"{len_of_message}{message}".encode())
         except Exception as e:
             print(e)
         try:
-            opcode = self.client_socket.recv(2).decode()
+            len_of_message = self.client_socket.recv(self.zfill_number).decode()
+            message = self.client_socket.recv(int(len_of_message)).decode()
         except Exception as e:
             print(e)
-        print(opcode)
-        if opcode == "00":
-            try:
-                len_of_key = self.client_socket.recv(4).decode()
-            except Exception as e:
-                print(e)
-            try:
-                A = int(self.client_socket.recv(int(len_of_key)).decode())
-            except Exception as e:
-                print(e)
-            else:
-                crypt_object = Encryption_Decryption.AES_encryption.set_key(A, b)
-                # exchange keys and create cryptObject
-                self.crypt_object = crypt_object
+        if message[:2] == "00":
+            A = int(message[2:])
+            crypt_object = Encryption_Decryption.AES_encryption.set_key(A, b)
+            # exchange keys and create cryptObject
+            self.crypt_object = crypt_object
 
     def send(self, message):
         """
         :param message:
         :return:
         """
-        print(self.crypt_object)
-        print(self.is_socket_open)
         if self.crypt_object is not None and self.is_socket_open:
-
             encrypt_msg = self.crypt_object.encrypt(message)
             len_encrypt_msg = str(len(encrypt_msg)).zfill(self.zfill_number).encode()
             try:
@@ -117,7 +106,7 @@ class Clientcomm(object):
             encrypt_data = self.crypt_object.encrypt(data)
             len_encrypt_data = str(len(encrypt_data)).zfill(self.zfill_number).encode()
 
-            encrypt_header = self.crypt_object.encrypt(len_encrypt_data+header)
+            encrypt_header = self.crypt_object.encrypt(len_encrypt_data + header.encode())
             len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
 
             self.client_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
@@ -131,9 +120,12 @@ class Clientcomm(object):
 
 if __name__ == '__main__':
     q = queue.Queue()
-    c = Clientcomm("192.168.4.92", q, 1500, 4)
-    time.sleep(3)
-    with open(fr"T:\public\יב\imri\projectCode\files\cat.jpg", 'rb') as f:
+    c = Clientcomm("192.168.4.97", q, 1500, 8)
+    while c.crypt_object is None:
+        continue
+    file_name = "cat.jpg"
+    with open(fr"T:\public\יב\imri\projectCode\files\\{file_name}", 'rb') as f:
         data = f.read()
-    header = "$%$01$%$cat.jpg$%$"
+
+    header = clientProtocol.clientProtocol.Upload_file(file_name)
     c.send_file(data, header)
