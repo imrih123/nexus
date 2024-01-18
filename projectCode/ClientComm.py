@@ -90,7 +90,6 @@ class Clientcomm(object):
                 # exchange keys and create cryptObject
                 self.crypt_object = crypt_object
 
-
     def send(self, message):
         """
         :param message:
@@ -107,8 +106,21 @@ class Clientcomm(object):
             except Exception as e:
                 print(e)
 
-    def send_file(self):
-        pass
+    def send_file(self, data, header):
+        """
+
+        :param data:
+        :param header:
+        :return:
+        """
+        if self.crypt_object is not None and self.is_socket_open:
+            encrypt_data = self.crypt_object.encrypt(data)
+            len_encrypt_data = str(len(encrypt_data)).zfill(self.zfill_number).encode()
+
+            encrypt_header = self.crypt_object.encrypt(len_encrypt_data+header)
+            len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
+
+            self.client_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
 
     def close_socket(self):
         """
@@ -119,7 +131,9 @@ class Clientcomm(object):
 
 if __name__ == '__main__':
     q = queue.Queue()
-    c = Clientcomm("192.168.4.97", q, 1500, 4)
+    c = Clientcomm("192.168.4.92", q, 1500, 4)
     time.sleep(3)
-    c.send("hello")
-    c.send("hello")
+    with open(fr"T:\public\יב\imri\projectCode\files\cat.jpg", 'rb') as f:
+        data = f.read()
+    header = "$%$01$%$cat.jpg$%$"
+    c.send_file(data, header)

@@ -34,7 +34,7 @@ class ServerComm(object):
         self.server_socket.listen(3)
         while self.is_socket_open:
             rlist, wlist, xlist = select.select([self.server_socket] + list(self.open_clients.keys()),
-                                                list(self.open_clients.keys()), [], 2)
+                                                list(self.open_clients.keys()), [], 0.3)
             for current_socket in rlist:
 
                 if current_socket is self.server_socket:
@@ -125,18 +125,18 @@ class ServerComm(object):
 
         :return:
         """
-        # opcode, params = server_protocol.unpack(message)
-        # len_data = params[1]
-        # data = bytearray()
-        # while len_data >= 1024:
-        #     data.extend(current_socket.recv(1024))
-        #     len_data -= 1024
-        # if len_data != 0:
-        #     data.extend(current_socket.recv(len_data))
-        # data = self.open_clients[current_socket][1].decrypt(data)
-        #
-        # string_params = "$%$".join(params)
-        # self.message_queue.put((self.open_clients[current_socket][0], f"{opcode}$%${string_params}"))
+        opcode, params = server_protocol.unpack(message)
+        len_data = params[1]
+        data = bytearray()
+        while len_data >= 1024:
+            data.extend(current_socket.recv(1024))
+            len_data -= 1024
+        if len_data != 0:
+            data.extend(current_socket.recv(len_data))
+        data = self.open_clients[current_socket][1].decrypt(data)
+
+        string_params = "$%$".join(params)
+        self.message_queue.put((self.open_clients[current_socket][0], f"{opcode}$%${string_params}"))
 
     def close_socket(self):
         """
