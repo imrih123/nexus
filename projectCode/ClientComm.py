@@ -75,6 +75,7 @@ class Clientcomm(object):
             opcode = self.client_socket.recv(2).decode()
         except Exception as e:
             print(e)
+        print(opcode)
         if opcode == "00":
             try:
                 len_of_key = self.client_socket.recv(4).decode()
@@ -85,22 +86,29 @@ class Clientcomm(object):
             except Exception as e:
                 print(e)
             else:
-                cryptobject = Encryption_Decryption.AES_encryption.set_key(A, b)
+                crypt_object = Encryption_Decryption.AES_encryption.set_key(A, b)
                 # exchange keys and create cryptObject
-                self.crypt_object = cryptobject
+                self.crypt_object = crypt_object
+
 
     def send(self, message):
         """
         :param message:
         :return:
         """
+        print(self.crypt_object)
+        print(self.is_socket_open)
         if self.crypt_object is not None and self.is_socket_open:
+
             encrypt_msg = self.crypt_object.encrypt(message)
             len_encrypt_msg = str(len(encrypt_msg)).zfill(self.zfill_number).encode()
             try:
                 self.client_socket.send(len_encrypt_msg + encrypt_msg)
             except Exception as e:
                 print(e)
+
+    def send_file(self):
+        pass
 
     def close_socket(self):
         """
@@ -112,5 +120,6 @@ class Clientcomm(object):
 if __name__ == '__main__':
     q = queue.Queue()
     c = Clientcomm("192.168.4.97", q, 1500, 4)
-    time.sleep(1)
+    time.sleep(3)
+    c.send("hello")
     c.send("hello")

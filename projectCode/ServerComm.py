@@ -5,6 +5,8 @@ import Encryption_Decryption
 import sys
 import queue
 import time
+import setting
+
 
 class ServerComm(object):
     def __init__(self, port, message_queue, zfill_number):
@@ -32,11 +34,13 @@ class ServerComm(object):
         self.server_socket.listen(3)
         while self.is_socket_open:
             rlist, wlist, xlist = select.select([self.server_socket] + list(self.open_clients.keys()),
-                                                list(self.open_clients.keys()), [])
+                                                list(self.open_clients.keys()), [], 2)
             for current_socket in rlist:
+
                 if current_socket is self.server_socket:
-                    #self._xchange_key()
-                    threading.Thread(target=self._xchange_key).start()
+                    (new_client, addr) = self.server_socket.accept()
+                    # self._xchange_key()
+                    threading.Thread(target=self._xchange_key, args=(new_client, addr)).start()
                 else:
                     try:
                         len_of_message = int(current_socket.recv(self.zfill_number).decode())
@@ -49,14 +53,17 @@ class ServerComm(object):
                         print(e)
                         sys.exit()
                     message = self.open_clients[current_socket][1].decrypt(encrypt_message)
-                    self.message_queue.put(message)
+                    if self.port in [setting.GENERAL_PORT, setting.NITUR_PORT]:
+                        self.message_queue.put(message)
+                    else:
+                        self._recv_file(current_socket, message)
 
-    def _xchange_key(self):
+    def _xchange_key(self, new_client, addr):
         """
 
         :return:
         """
-        (new_client, addr) = self.server_socket.accept()
+
         a, A = Encryption_Decryption.AES_encryption.get_dif_Num()
         opcode = ""
         len_of_key = 0
@@ -75,6 +82,7 @@ class ServerComm(object):
                 cryptobject = Encryption_Decryption.AES_encryption.set_key(B,a)
                 # exchange keys and create cryptObject
                 self.open_clients[new_client] = [addr[0], cryptobject]
+                print(self.open_clients)
             try:
                 new_client.send(f"00{len_of_A}{A}".encode())
             except Exception as e:
@@ -112,18 +120,23 @@ class ServerComm(object):
         for ip in self.open_clients.keys():
             self.send(message, ip)
 
-    def _recv_file(self, ip, len_message, file):
+    def _recv_file(self, current_socket, message):
         """
 
         :return:
         """
-        current_socket = self._find_socket_by_ip(ip)
-        data_part = bytearray()
-        while len_message >= 1024:
-            data_part += current_socket.recv(1024)
-            len_message -= 1024
-        if len_message != 0:
-            data_part += current_socket.recv(len_message)
+        # opcode, params = server_protocol.unpack(message)
+        # len_data = params[1]
+        # data = bytearray()
+        # while len_data >= 1024:
+        #     data.extend(current_socket.recv(1024))
+        #     len_data -= 1024
+        # if len_data != 0:
+        #     data.extend(current_socket.recv(len_data))
+        # data = self.open_clients[current_socket][1].decrypt(data)
+        #
+        # string_params = "$%$".join(params)
+        # self.message_queue.put((self.open_clients[current_socket][0], f"{opcode}$%${string_params}"))
 
     def close_socket(self):
         """
@@ -136,4 +149,5 @@ class ServerComm(object):
 if __name__ == '__main__':
     q = queue.Queue()
     s = ServerComm(1500, q, 4)
-    print(q.get())
+    while True:
+        print(q.get())
