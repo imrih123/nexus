@@ -17,7 +17,8 @@ class serverProtocol(object):
         :param data:
         :return:
         """
-        params = "$%$".split(data)
+        params = data.split("$%$")
+        print(params, "params")
         opcode = params[1]
         params.remove(params[1])
         return opcode, params

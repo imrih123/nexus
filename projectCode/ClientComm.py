@@ -103,12 +103,13 @@ class Clientcomm(object):
         :return:
         """
         if self.crypt_object is not None and self.is_socket_open:
+            print(header, "header")
             encrypt_data = self.crypt_object.encrypt(data)
             len_encrypt_data = str(len(encrypt_data)).zfill(self.zfill_number).encode()
-
+            print(len_encrypt_data, "lenedata")
             encrypt_header = self.crypt_object.encrypt(len_encrypt_data + header.encode())
             len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
-
+            print(len_encrypt_header,"lene header")
             self.client_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
 
     def close_socket(self):
@@ -120,11 +121,11 @@ class Clientcomm(object):
 
 if __name__ == '__main__':
     q = queue.Queue()
-    c = Clientcomm("192.168.4.97", q, 1500, 8)
+    c = Clientcomm("192.168.1.129", q, 2000, 8)
     while c.crypt_object is None:
         continue
     file_name = "cat.jpg"
-    with open(fr"T:\public\יב\imri\projectCode\files\\{file_name}", 'rb') as f:
+    with open(fr"F:\nexus\projectCode\files\{file_name}", 'rb') as f:
         data = f.read()
 
     header = clientProtocol.clientProtocol.Upload_file(file_name)

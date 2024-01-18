@@ -50,9 +50,8 @@ class ServerComm(object):
                         sys.exit()
                     message = self.open_clients[current_socket][1].decrypt(encrypt_message)
                     if self.port in [setting.GENERAL_PORT, setting.NITUR_PORT]:
-                        self.message_queue.put(message)
+                        self.message_queue.put((self.open_clients[current_socket][0],message))
                     else:
-                        print("123")
                         self._recv_file(current_socket, message)
 
     def _xchange_key(self, new_client, addr):
@@ -119,16 +118,24 @@ class ServerComm(object):
 
         :return:
         """
+        print(message)
         opcode, params = serverProtocol.serverProtocol.unpack_file(message)
-        len_data = params[0]
+        len_encrypt_data = int(params[0])
         data = bytearray()
-        while len_data >= 1024:
-            data.extend(current_socket.recv(1024))
-            len_data -= 1024
-        if len_data != 0:
-            data.extend(current_socket.recv(len_data))
+        while len_encrypt_data >= 1024:
+            try:
+                data.extend(current_socket.recv(1024))
+            except Exception as e:
+                print(e)
+            len_encrypt_data -= 1024
+        if len_encrypt_data != 0:
+            try:
+                data.extend(current_socket.recv(len_encrypt_data))
+            except Exception as e:
+                print(e)
         data = self.open_clients[current_socket][1].decrypt(data)
-
+        params.append(data)
+        params[0] = len(data)
         self.message_queue.put((self.open_clients[current_socket][0], params))
 
     def close_socket(self):
@@ -141,6 +148,13 @@ class ServerComm(object):
 
 if __name__ == '__main__':
     q = queue.Queue()
-    s = ServerComm(1500, q, 8)
+    s = ServerComm(2000, q, 8)
+    path_to_save = fr"F:\nexus\projectCode\files"
     while True:
-        print(q.get())
+        ip, params = q.get()
+        print(params)
+        print(f"the ip that send the file is {ip}")
+        print(f"the file len is {params[0]}")
+        print(f"the file name is {params[1]}")
+        with open(fr"{path_to_save}\catS.jpg", 'wb') as f:
+            f.write(params[2])

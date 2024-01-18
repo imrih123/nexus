@@ -27,7 +27,7 @@ class clientProtocol(object):
 
     @staticmethod
     def Upload_file(filename):
-        return f"$%$01$%${filename}$%$"
+        return f"$%$01$%${filename}"
 
     @staticmethod
     def Request_part_file():
