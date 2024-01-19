@@ -50,7 +50,7 @@ class ServerComm(object):
                         sys.exit()
                     message = self.open_clients[current_socket][1].decrypt(encrypt_message)
                     if self.port in [setting.GENERAL_PORT, setting.NITUR_PORT]:
-                        self.message_queue.put((self.open_clients[current_socket][0],message))
+                        self.message_queue.put((self.open_clients[current_socket][0], message))
                     else:
                         self._recv_file(current_socket, message)
 
