@@ -149,7 +149,7 @@ class ServerComm(object):
 if __name__ == '__main__':
     q = queue.Queue()
     s = ServerComm(2000, q, 8)
-    path_to_save = fr"F:\nexus\projectCode\files"
+    path_to_save = fr"T:\public\יב\imri\nexus\projectCode\files"
     while True:
         ip, params = q.get()
         print(params)

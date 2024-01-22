@@ -6,6 +6,7 @@ import sys
 import queue
 import time
 import clientProtocol
+import os
 
 
 class Clientcomm(object):
@@ -121,11 +122,11 @@ class Clientcomm(object):
 
 if __name__ == '__main__':
     q = queue.Queue()
-    c = Clientcomm("192.168.1.129", q, 2000, 8)
+    c = Clientcomm("192.168.4.97", q, 2000, 8)
     while c.crypt_object is None:
         continue
     file_name = "cat.jpg"
-    with open(fr"F:\nexus\projectCode\files\{file_name}", 'rb') as f:
+    with open(fr"T:\public\יב\imri\nexus\projectCode\projectCode\files\{file_name}", 'rb') as f:
         data = f.read()
 
     header = clientProtocol.clientProtocol.Upload_file(file_name)

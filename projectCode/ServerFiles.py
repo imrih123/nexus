@@ -95,9 +95,9 @@ class Server_files(object):
 
 if __name__ == '__main__':
     s = Server_files(fr"T:\public\יב\imri\nexus\projectCode\\torrent_files")
-    with open(fr"T:\public\יב\imri\nexus\projectCode\files\cat.jpg", "rb") as f:
+    with open(fr"T:\public\יב\imri\nexus\projectCode\torrent_files\cat.jpg.json", "rb") as f:
         data = f.read()
-    s.create_torrent_file(data, "cat.jpg")
+    s.create_torrent_file(data, "imri.jpg")
     print(s.add_ip_to_torrent("cat.jpg","127"))
     print(s.add_ip_to_torrent("cat.jpg", "127"))
     print(s.delete_ip_from_torrent("cat.jpg", "127"))
