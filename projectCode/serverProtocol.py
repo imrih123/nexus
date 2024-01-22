@@ -31,8 +31,8 @@ class serverProtocol(object):
         return f"01$%${json_torrent}"
 
     @staticmethod
-    def Response_for_upload_request(file_name, port):
-        return f"02$%${port}$%${file_name}"
+    def Response_for_upload_request(path_of_file, port):
+        return f"02$%${port}$%${path_of_file}"
 
     @staticmethod
     def Response_for_upload():

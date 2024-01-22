@@ -28,14 +28,29 @@ class clientProtocol(object):
 
     @staticmethod
     def Request_torrent_file(file_name):
+        """
+
+        :param file_name:
+        :return:
+        """
         return f"01$%${file_name}"
 
     @staticmethod
-    def Request_upload(file_name):
-        return f"02$%${file_name}"
+    def Request_upload(path):
+        """
+
+        :param path:
+        :return:
+        """
+        return f"02$%${path}"
 
     @staticmethod
     def Upload_file(filename):
+        """
+
+        :param filename:
+        :return:
+        """
         return f"$%$01$%${filename}"
 
     @staticmethod
