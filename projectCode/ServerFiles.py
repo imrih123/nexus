@@ -17,6 +17,7 @@ class Server_files(object):
         list_of_hash = []
         for i in range(math.ceil(len(data)/4096)):
             data_part = data[i*4096:(i+1)*4096]
+            print(data_part, "data_part")
             list_of_hash.append(str(Encryption_Decryption.AES_encryption.hash(data_part)))
         full_hash = str(Encryption_Decryption.AES_encryption.hash(data))
 

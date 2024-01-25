@@ -103,14 +103,12 @@ class Clientcomm(object):
         :param header:
         :return:
         """
+        print(header, data)
         if self.crypt_object is not None and self.is_socket_open:
-            print(header, "header")
             encrypt_data = self.crypt_object.encrypt(data)
             len_encrypt_data = str(len(encrypt_data)).zfill(self.zfill_number).encode()
-            print(len_encrypt_data, "lenedata")
             encrypt_header = self.crypt_object.encrypt(len_encrypt_data + header.encode())
             len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
-            print(len_encrypt_header,"lene header")
             self.client_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
 
     def close_socket(self):

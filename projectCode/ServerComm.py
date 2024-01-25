@@ -61,7 +61,6 @@ class ServerComm(object):
         """
 
         a, A = Encryption_Decryption.AES_encryption.get_dif_Num()
-
         try:
             len_of_message = new_client.recv(self.zfill_number).decode()
             message = new_client.recv(int(len_of_message)).decode()
@@ -77,7 +76,7 @@ class ServerComm(object):
                 except Exception as e:
                     print(e)
                 else:
-                    cryptobject = Encryption_Decryption.AES_encryption.set_key(B,a)
+                    cryptobject = Encryption_Decryption.AES_encryption.set_key(B, a)
                     # exchange keys and create cryptObject
                     self.open_clients[new_client] = [addr[0], cryptobject]
 
@@ -87,7 +86,8 @@ class ServerComm(object):
         :param find_ip:
         :return:
         """
-        for key, value in self.open_clients:
+
+        for key, value in self.open_clients.items():
             if value[0] == find_ip:
                 return key
 
@@ -100,7 +100,7 @@ class ServerComm(object):
         """
         current_socket = self._find_socket_by_ip(ip)
         if current_socket is not None:
-            encrypt_msg = self.open_clients[current_socket][1].eecrypt(message.encode())
+            encrypt_msg = self.open_clients[current_socket][1].encrypt(message.encode())
             len_encrypt_msg = str(len(encrypt_msg)).zfill(self.zfill_number).encode()
             current_socket.send(len_encrypt_msg+encrypt_msg)
 
@@ -118,7 +118,6 @@ class ServerComm(object):
 
         :return:
         """
-        print(message)
         opcode, params = serverProtocol.serverProtocol.unpack_file(message)
         len_encrypt_data = int(params[0])
         data = bytearray()
