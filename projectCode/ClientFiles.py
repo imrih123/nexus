@@ -50,3 +50,4 @@ class client_files(object):
         """
         if os.path.exists(fr"{path_of_file}"):
             os.remove(fr"{path_of_file}")
+

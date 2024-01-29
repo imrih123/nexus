@@ -5,7 +5,7 @@ import Encryption_Decryption
 import sys
 import queue
 import time
-import setting
+import settingSer
 import serverProtocol
 
 
@@ -49,7 +49,7 @@ class ServerComm(object):
                         print(e)
                         sys.exit()
                     message = self.open_clients[current_socket][1].decrypt(encrypt_message)
-                    if self.port in [setting.GENERAL_PORT, setting.NITUR_PORT]:
+                    if self.port in [settingSer.GENERAL_PORT, settingSer.NITUR_PORT]:
                         self.message_queue.put((self.open_clients[current_socket][0], message))
                     else:
                         self._recv_file(current_socket, message)
@@ -118,6 +118,7 @@ class ServerComm(object):
 
         :return:
         """
+        print("in recv file")
         opcode, params = serverProtocol.serverProtocol.unpack_file(message)
         len_encrypt_data = int(params[0])
         data = bytearray()

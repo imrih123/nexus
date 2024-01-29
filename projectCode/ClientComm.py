@@ -35,12 +35,15 @@ class Clientcomm(object):
         self._xchange_key()
         while self.is_socket_open and self.crypt_object is not None:
             try:
-                len_of_message = int(self.client_socket.recv(self.zfill_number).decode())
+                len_of_message = self.client_socket.recv(self.zfill_number).decode()
             except Exception as e:
                 print(e)
                 sys.exit()
+            if len_of_message == '':
+                self.close_socket()
+                break
             try:
-                encrypt_message = self.client_socket.recv(len_of_message).decode()
+                encrypt_message = self.client_socket.recv(int(len_of_message)).decode()
             except Exception as e:
                 print(e)
                 sys.exit()
@@ -88,6 +91,8 @@ class Clientcomm(object):
         :param message:
         :return:
         """
+        while self.crypt_object is None:
+            continue
         if self.crypt_object is not None and self.is_socket_open:
             encrypt_msg = self.crypt_object.encrypt(message)
             len_encrypt_msg = str(len(encrypt_msg)).zfill(self.zfill_number).encode()
@@ -103,13 +108,15 @@ class Clientcomm(object):
         :param header:
         :return:
         """
-        print(header, data)
+        while self.crypt_object is None:
+            continue
         if self.crypt_object is not None and self.is_socket_open:
             encrypt_data = self.crypt_object.encrypt(data)
             len_encrypt_data = str(len(encrypt_data)).zfill(self.zfill_number).encode()
             encrypt_header = self.crypt_object.encrypt(len_encrypt_data + header.encode())
             len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
             self.client_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
+            print("After send in client comm")
 
     def close_socket(self):
         """

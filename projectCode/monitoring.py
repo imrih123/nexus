@@ -7,6 +7,7 @@ import shutil
 import win32com.client
 import threading
 import queue
+import os
 
 
 class monitoring(object):
@@ -18,6 +19,8 @@ class monitoring(object):
         """
         self.path_to_monitor = path_to_monitor
         self.msgs_queue = queue
+        if not os.path.exists(path_to_monitor):
+            os.mkdir(path_to_monitor)
         threading.Thread(target=self._monitoring_folder).start()
 
     def _monitoring_folder(self):
@@ -56,19 +59,6 @@ class monitoring(object):
             win32file.FindCloseChangeNotification(change_handle)
 
 
-# time = datetime.now().strftime("%H:%M:%S")
-
-# with open("log.txt", "a", encoding="utf-8") as log_file:
-                            #     log_file.write(filename + "\n")
-
-# with open("log.txt", "a", encoding="utf-8") as log_file:
-                            #     log_file.write(time + "  -  file has been changed:  " + filename + "\n")
-
-# with open("log.txt", "a", encoding="utf-8") as log_file:
-                            #     log_file.write(time + "  -  file removed:  " + filename + "\n")
-
-# with open("log.txt", "a", encoding="utf-8") as log_file:
-                                # log_file.write(time + "  -  new file:  " + filename + "\n")
 if __name__ == '__main__':
     q = queue.Queue()
     c = monitoring(fr"T:\public\יב\imri\nexus\projectCode\files", q)

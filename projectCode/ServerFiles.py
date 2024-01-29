@@ -1,6 +1,7 @@
 import Encryption_Decryption
 import math
 import json
+import os
 
 
 class Server_files(object):
@@ -17,7 +18,6 @@ class Server_files(object):
         list_of_hash = []
         for i in range(math.ceil(len(data)/4096)):
             data_part = data[i*4096:(i+1)*4096]
-            print(data_part, "data_part")
             list_of_hash.append(str(Encryption_Decryption.AES_encryption.hash(data_part)))
         full_hash = str(Encryption_Decryption.AES_encryption.hash(data))
 
@@ -67,8 +67,11 @@ class Server_files(object):
         :param file_name:
         :return:
         """
-        with open(fr"{self.torrent_files_path}\\{file_name}.json", "r") as f:
-            data = json.load(f)
+        data = None
+        if os.path.exists(fr"{self.torrent_files_path}\\{file_name}.json"):
+            with open(fr"{self.torrent_files_path}\\{file_name}.json", "r") as f:
+                data = json.load(f)
+                data = json.dumps(data)
         return data
 
     def delete_ip_from_torrent(self, file_name, ip):
@@ -90,7 +93,6 @@ class Server_files(object):
 
         with open(fr"{self.torrent_files_path}\\{file_name}.json", "w") as f:
             json.dump(data, f)
-
         return bol
 
 
