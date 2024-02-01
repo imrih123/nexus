@@ -48,7 +48,7 @@ def file_deleted(name_of_file, ip):
     :return:
     """
     torrents_db = DB.DBClass()
-    if torrents_db.have_torrent(f"{name_of_file}.json"):
+    if torrents_db.have_torrent(name_of_file):
         if files_obj.delete_ip_from_torrent(name_of_file, ip):
             list_of_open_files.remove(name_of_file)
             string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(list_of_open_files)
@@ -63,7 +63,7 @@ def file_changed(name_of_file, ip):
     :return:
     """
     torrents_db = DB.DBClass()
-    if torrents_db.have_torrent(f"{name_of_file}.json"):
+    if torrents_db.have_torrent(name_of_file):
         if files_obj.delete_ip_from_torrent(name_of_file, ip):
             list_of_open_files.remove(name_of_file)
             string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(list_of_open_files)
@@ -91,7 +91,7 @@ def handle_general_msgs(general_queue):
     """
     while True:
         ip, message = general_queue.get()
-        print(message," handle general msgs server")
+        print(message, " handle general msgs server")
         opcode, params = serverProtocol.serverProtocol.unpack(message)
         params.append(ip)
         general_commands[opcode](params)
@@ -107,6 +107,7 @@ def send_torrent(params):
     ip = params[1]
     torrent_file = files_obj.get_torrent_file(file_name)
     response_for_torrent_request = serverProtocol.serverProtocol.Response_for_torrent_request(torrent_file)
+    print(response_for_torrent_request)
     general_comm.send(response_for_torrent_request, ip)
 
 

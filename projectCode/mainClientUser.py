@@ -33,7 +33,7 @@ def p2p_download(params):
     """
     json_string = params[0]
     torrnet_dict = json.loads(json_string)
-
+    print(f"\n\n{torrnet_dict}")
     # with open(fr"C:\Users\talmid\Downloads\cat.jpg", 'rb') as f:
     #     data = f.read()
     # list_of_hash = []
@@ -79,12 +79,13 @@ if __name__ == '__main__':
     list_of_open_file = []
     general_comm = ClientComm.Clientcomm(server_ip, general_queue, 1500, 4)
     threading.Thread(target=handle_general_msgs, args=(general_queue, )).start()
+    opcode = input(": ")
+    if opcode == "upload":
+        request_upload_file = clientProtocol.clientProtocol.Request_upload(path_to_file)
+        general_comm.send(request_upload_file)
 
-    request_upload_file = clientProtocol.clientProtocol.Request_upload(path_to_file)
-    general_comm.send(request_upload_file)
-
-    #time.sleep(3)
-
-    # request_torrent_file = clientProtocol.clientProtocol.Request_torrent_file("cat.jpg")
-    # general_comm.send(request_torrent_file)
+    # time.sleep(3)
+    elif opcode == "download":
+        request_torrent_file = clientProtocol.clientProtocol.Request_torrent_file("yotam.jpg")
+        general_comm.send(request_torrent_file)
 

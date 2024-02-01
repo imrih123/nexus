@@ -2,7 +2,6 @@ import socket
 import select
 import threading
 import Encryption_Decryption
-import sys
 import queue
 import time
 import settingSer
@@ -47,7 +46,8 @@ class ServerComm(object):
                         encrypt_message = current_socket.recv(len_of_message)
                     except Exception as e:
                         print(e)
-                        sys.exit()
+                        del self.open_clients[current_socket]
+                        break
                     message = self.open_clients[current_socket][1].decrypt(encrypt_message)
                     if self.port in [settingSer.GENERAL_PORT, settingSer.NITUR_PORT]:
                         self.message_queue.put((self.open_clients[current_socket][0], message))
@@ -99,13 +99,14 @@ class ServerComm(object):
         :return:
         """
         current_socket = self._find_socket_by_ip(ip)
-        if current_socket is not None:
+        if current_socket is not None and self.is_socket_open:
             encrypt_msg = self.open_clients[current_socket][1].encrypt(message.encode())
             len_encrypt_msg = str(len(encrypt_msg)).zfill(self.zfill_number).encode()
             try:
                 current_socket.send(len_encrypt_msg+encrypt_msg)
             except Exception as e:
                 print(e)
+                del self.open_clients[current_socket]
 
     def send_file(self, data, header, ip):
         """
@@ -114,16 +115,18 @@ class ServerComm(object):
         :param header:
         :return:
         """
-        current_socket = self._find_socket_by_ip(ip)
-        crypto = self.open_clients[current_socket][1]
-        encrypt_data = crypto.encrypt(data)
-        len_encrypt_data = str(len(encrypt_data)).zfill(self.zfill_number).encode()
-        encrypt_header = crypto.encrypt(len_encrypt_data + header.encode())
-        len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
-        try:
-            current_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
-        except Exception as e:
-            print(e)
+        if self.is_socket_open:
+            current_socket = self._find_socket_by_ip(ip)
+            crypto = self.open_clients[current_socket][1]
+            encrypt_data = crypto.encrypt(data)
+            len_encrypt_data = str(len(encrypt_data)).zfill(self.zfill_number).encode()
+            encrypt_header = crypto.encrypt(len_encrypt_data + header.encode())
+            len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
+            try:
+                current_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
+            except Exception as e:
+                print(e)
+                del self.open_clients[current_socket]
 
     def sendall(self, message):
         """
@@ -150,12 +153,14 @@ class ServerComm(object):
                 data.extend(current_socket.recv(1024))
             except Exception as e:
                 print(e)
+                del self.open_clients[current_socket]
             len_encrypt_data -= 1024
         if len_encrypt_data != 0:
             try:
                 data.extend(current_socket.recv(len_encrypt_data))
             except Exception as e:
                 print(e)
+                del self.open_clients[current_socket]
         data = self.open_clients[current_socket][1].decrypt(data)
         params.append(data)
         params[0] = len(data)

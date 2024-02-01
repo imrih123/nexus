@@ -51,7 +51,8 @@ class Server_files(object):
             data = json.load(f)
 
         list_of_ip = data["open ip"]
-        list_of_ip.append(ip)
+        if ip not in list_of_ip:
+            list_of_ip.append(ip)
         data["open ip"] = list_of_ip
 
         bol = len(data["open ip"]) == 1
@@ -68,7 +69,7 @@ class Server_files(object):
         :return:
         """
         data = None
-        if os.path.exists(fr"{self.torrent_files_path}\\{file_name}.json"):
+        if os.path.exists(f"{self.torrent_files_path}\{file_name}.json"):
             with open(fr"{self.torrent_files_path}\\{file_name}.json", "r") as f:
                 data = json.load(f)
                 data = json.dumps(data)
