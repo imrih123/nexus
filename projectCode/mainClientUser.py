@@ -11,6 +11,7 @@ import time
 import json
 import math
 
+
 def handle_general_msgs(general_queue):
     """
 
@@ -19,6 +20,7 @@ def handle_general_msgs(general_queue):
     """
     while True:
         message = general_queue.get()
+        print(message, " handle general msgs client")
         opcode, params = clientProtocol.clientProtocol.unpack(message)
         general_commands[opcode](params)
 
@@ -55,7 +57,6 @@ def create_socket_upload(params):
     :param name_of_file:
     :return:
     """
-    print("in create socket upload ")
     port, path_of_file = int(params[0]), params[1]
     upload_queue = queue.Queue()
     file_name = os.path.basename(path_of_file)
@@ -63,11 +64,14 @@ def create_socket_upload(params):
     data = ClientFiles.client_files.get_part_of_file(path_of_file, -1)
     header = clientProtocol.clientProtocol.Upload_file(file_name)
     upload_comm.send_file(data, header)
+    response = upload_queue.get()
+    if response == "011":
+        ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
 
 
 if __name__ == '__main__':
     server_ip = settingCli.SERVER_IP
-    path_to_file = fr"C:\Users\talmid\Downloads\cat.jpg"
+    path_to_file = fr"C:\Users\talmid\Downloads\yotam.jpg"
     general_commands = {"01": p2p_download, "02": create_socket_upload}
     gui_commands = {}
     general_queue = queue.Queue()
@@ -79,8 +83,8 @@ if __name__ == '__main__':
     request_upload_file = clientProtocol.clientProtocol.Request_upload(path_to_file)
     general_comm.send(request_upload_file)
 
-    time.sleep(3)
+    #time.sleep(3)
 
-    request_torrent_file = clientProtocol.clientProtocol.Request_torrent_file("cat.jpg")
-    general_comm.send(request_torrent_file)
+    # request_torrent_file = clientProtocol.clientProtocol.Request_torrent_file("cat.jpg")
+    # general_comm.send(request_torrent_file)
 

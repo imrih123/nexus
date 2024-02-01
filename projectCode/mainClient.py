@@ -17,6 +17,7 @@ def handle_p2p_msgs(Server_upload_queue):
     """
     while True:
         ip, message = Server_upload_queue.get()
+        print(message, " handle p2p msgs client")
         opcode, params = clientProtocol.clientProtocol.unpack(message)
         params.append(ip)
         upload_server_commands[opcode](params)
@@ -32,7 +33,7 @@ def send_part_of_file(params):
     data_of_part = ClientFiles.client_files. \
         get_part_of_file(f"{settingCli.NITUR_FOLDER}\\{file_name}", file_part)
     header = clientProtocol.clientProtocol.Send_file_part(file_name, file_part)
-    upload_server.sendfile(header, data_of_part, ip)
+    upload_server.send_file(header, data_of_part, ip)
 
 
 def handle_nitur_msgs(nitur_queue):
@@ -43,8 +44,8 @@ def handle_nitur_msgs(nitur_queue):
     :return:
     """
     while True:
-        message = nitur_queue.get()
-        opcode, file_name = clientProtocol.clientProtocol.unpack(message)
+        opcode, file_name = nitur_queue.get()
+        print(opcode, file_name, "handle nitur msgs client")
         nitur_commands[opcode](file_name)
 
 
@@ -78,6 +79,16 @@ def change_file(file_name):
     nitur_comm.send(update_in_nitur)
 
 
+def change_file_name(file_name):
+    """
+
+    :param file_name:
+    :return:
+    """
+    update_in_nitur = clientProtocol.clientProtocol.changed_file_name_new_nitur(file_name)
+    nitur_comm.send(update_in_nitur)
+
+
 def handle_nitur_comm_msgs(nitur_comm_queue):
     """
 
@@ -87,6 +98,7 @@ def handle_nitur_comm_msgs(nitur_comm_queue):
     while True:
         message = nitur_comm_queue.get()
         opcode, file_name = clientProtocol.clientProtocol.unpack(message)
+        print(opcode, file_name, "handle nitur comm msgs client")
         if opcode == "03":
             ClientFiles.client_files.delete_file(fr"{settingCli.NITUR_FOLDER}\\{file_name}")
 
@@ -101,7 +113,8 @@ if __name__ == '__main__':
     upload_server_queue = queue.Queue()
     upload_server = ServerComm.ServerComm(settingCli.P2P_UPLOAD_PORT, upload_server_queue, 4)
 
-    nitur_commands = {}
+    nitur_commands = {"01": add_file, "02": delete_file, "03": change_file, "05": change_file_name}
+
     upload_server_commands = {}
 
     threading.Thread(target=handle_nitur_comm_msgs, args=(nitur_comm_queue,)).start()

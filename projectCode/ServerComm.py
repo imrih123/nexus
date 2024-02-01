@@ -102,7 +102,28 @@ class ServerComm(object):
         if current_socket is not None:
             encrypt_msg = self.open_clients[current_socket][1].encrypt(message.encode())
             len_encrypt_msg = str(len(encrypt_msg)).zfill(self.zfill_number).encode()
-            current_socket.send(len_encrypt_msg+encrypt_msg)
+            try:
+                current_socket.send(len_encrypt_msg+encrypt_msg)
+            except Exception as e:
+                print(e)
+
+    def send_file(self, data, header, ip):
+        """
+
+        :param data:
+        :param header:
+        :return:
+        """
+        current_socket = self._find_socket_by_ip(ip)
+        crypto = self.open_clients[current_socket][1]
+        encrypt_data = crypto.encrypt(data)
+        len_encrypt_data = str(len(encrypt_data)).zfill(self.zfill_number).encode()
+        encrypt_header = crypto.encrypt(len_encrypt_data + header.encode())
+        len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
+        try:
+            current_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
+        except Exception as e:
+            print(e)
 
     def sendall(self, message):
         """
@@ -111,14 +132,16 @@ class ServerComm(object):
         :return:
         """
         for ip in self.open_clients.keys():
-            self.send(message, ip)
+            try:
+                self.send(message, ip)
+            except Exception as e:
+                print(e)
 
     def _recv_file(self, current_socket, message):
         """
 
         :return:
         """
-        print("in recv file")
         opcode, params = serverProtocol.serverProtocol.unpack_file(message)
         len_encrypt_data = int(params[0])
         data = bytearray()

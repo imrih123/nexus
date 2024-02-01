@@ -9,6 +9,80 @@ import settingSer
 import threading
 
 
+def handle_nitur_msgs(nitur_queue):
+    """
+
+    :param nitur_queue:
+    :return:
+    """
+    while True:
+        ip, message = nitur_queue.get()
+        print(message, "handle nitur msg server")
+        opcode, name_of_file = serverProtocol.serverProtocol.unpack(message)
+        nitur_commands[opcode](name_of_file[0], ip)
+
+
+def file_added(name_of_file, ip):
+    """
+
+    :param name_of_file:
+    :param ip:
+    :return:
+    """
+    torrents_db = DB.DBClass()
+    if torrents_db.have_torrent(name_of_file):
+        if files_obj.add_ip_to_torrent(name_of_file, ip):
+            list_of_open_files.append(name_of_file)
+            string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(list_of_open_files)
+            general_comm.sendall(string_of_open_files)
+    else:
+        delete_file_msg = serverProtocol.serverProtocol.Delete_file_from_folder(name_of_file)
+        nitur_comm.send(delete_file_msg, ip)
+
+
+def file_deleted(name_of_file, ip):
+    """
+
+    :param name_of_file:
+    :param ip:
+    :return:
+    """
+    torrents_db = DB.DBClass()
+    if torrents_db.have_torrent(f"{name_of_file}.json"):
+        if files_obj.delete_ip_from_torrent(name_of_file, ip):
+            list_of_open_files.remove(name_of_file)
+            string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(list_of_open_files)
+            general_comm.sendall(string_of_open_files)
+
+
+def file_changed(name_of_file, ip):
+    """
+
+    :param name_of_file:
+    :param ip:
+    :return:
+    """
+    torrents_db = DB.DBClass()
+    if torrents_db.have_torrent(f"{name_of_file}.json"):
+        if files_obj.delete_ip_from_torrent(name_of_file, ip):
+            list_of_open_files.remove(name_of_file)
+            string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(list_of_open_files)
+            general_comm.sendall(string_of_open_files)
+    delete_file_msg = serverProtocol.serverProtocol.Delete_file_from_folder(name_of_file)
+    nitur_comm.send(delete_file_msg, ip)
+
+
+def file_name_changed(name_of_file, ip):
+    """
+
+    :param name_of_file:
+    :param ip:
+    :return:
+    """
+    delete_file_msg = serverProtocol.serverProtocol.Delete_file_from_folder(name_of_file)
+    nitur_comm.send(delete_file_msg, ip)
+
+
 def handle_general_msgs(general_queue):
     """
 
@@ -17,6 +91,7 @@ def handle_general_msgs(general_queue):
     """
     while True:
         ip, message = general_queue.get()
+        print(message," handle general msgs server")
         opcode, params = serverProtocol.serverProtocol.unpack(message)
         params.append(ip)
         general_commands[opcode](params)
@@ -48,7 +123,6 @@ def create_uplaod_socket(params):
     if not torrents_db.have_torrent(file_name):
         upload_queue = queue.Queue()
         port = next(unused_ports)
-        print(port, "port")
         upload_comm = ServerComm.ServerComm(port, upload_queue, 8)
         threading.Thread(target=handle_upload_file, args=(upload_queue, upload_comm)).start()
         response = serverProtocol.serverProtocol.Response_for_upload_request(path_of_file, port)
@@ -64,7 +138,6 @@ def handle_upload_file(upload_queue, upload_comm):
     torrents_db = DB.DBClass()
     ip, message = upload_queue.get()
     file_name, data = message[1], message[2]
-    print("in handle upload", torrents_db.have_torrent(file_name))
     if not torrents_db.have_torrent(file_name):
         files_obj.create_torrent_file(data, file_name)
         torrents_db.add_torrent(file_name)
@@ -75,7 +148,7 @@ def handle_upload_file(upload_queue, upload_comm):
 
 if __name__ == '__main__':
     general_commands = {"01": send_torrent, "02": create_uplaod_socket}
-    nitur_commands = {}
+    nitur_commands = {"01": file_added, "02": file_deleted, "03": file_changed, "05": file_name_changed}
 
     list_of_open_files = []
     unused_ports = (x for x in range(2000, 2500))
@@ -87,5 +160,6 @@ if __name__ == '__main__':
     nitur_comm = ServerComm.ServerComm(1600, nitur_queue, 2)
 
     threading.Thread(target=handle_general_msgs, args=(general_queue,)).start()
+    threading.Thread(target=handle_nitur_msgs, args=(nitur_queue,)).start()
 
     files_obj = ServerFiles.Server_files(settingSer.PATH_OF_TORRENTS_FOLDER)

@@ -72,3 +72,11 @@ class clientProtocol(object):
     @staticmethod
     def changed_file_nitur(file_name):
         return f"03$%${file_name}"
+
+    @staticmethod
+    def changed_file_name_old_nitur(file_name):
+        return f"04$%${file_name}"
+
+    @staticmethod
+    def changed_file_name_new_nitur(file_name):
+        return f"05$%${file_name}"

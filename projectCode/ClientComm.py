@@ -116,7 +116,7 @@ class Clientcomm(object):
             encrypt_header = self.crypt_object.encrypt(len_encrypt_data + header.encode())
             len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
             self.client_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
-            print("After send in client comm")
+
 
     def close_socket(self):
         """
