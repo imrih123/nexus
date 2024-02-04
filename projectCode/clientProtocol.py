@@ -27,7 +27,7 @@ class clientProtocol(object):
         return f"00{A}"
 
     @staticmethod
-    def Request_torrent_file(file_name):
+    def request_torrent_file(file_name):
         """
 
         :param file_name:
@@ -36,7 +36,7 @@ class clientProtocol(object):
         return f"01$%${file_name}"
 
     @staticmethod
-    def Request_upload(path):
+    def request_upload(path):
         """
 
         :param path:
@@ -45,7 +45,7 @@ class clientProtocol(object):
         return f"02$%${path}"
 
     @staticmethod
-    def Upload_file(filename):
+    def upload_file(filename):
         """
 
         :param filename:
@@ -54,15 +54,15 @@ class clientProtocol(object):
         return f"$%$01$%${filename}"
 
     @staticmethod
-    def Request_part_file(file_name, number_of_part):
+    def request_part_file(file_name, number_of_part):
         return f"01$%${number_of_part}$%${file_name}"
 
     @staticmethod
-    def Send_file_part(file_name, number_of_part):
+    def send_file_part(file_name, number_of_part):
         return f"01$%${number_of_part}$%${file_name}"
 
     @staticmethod
-    def Added_file_nitur(file_name):
+    def added_file_nitur(file_name):
         return f"01$%${file_name}"
 
     @staticmethod

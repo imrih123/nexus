@@ -30,14 +30,18 @@ def file_added(name_of_file, ip):
     :return:
     """
     torrents_db = DB.DBClass()
-    if torrents_db.have_torrent(name_of_file):
-        if files_obj.add_ip_to_torrent(name_of_file, ip):
+    have_torrent = torrents_db.have_torrent(name_of_file)
+    torrents_db.closeDb()
+    if have_torrent:
+        need_to_send = files_obj.add_ip_to_torrent(name_of_file, ip)
+        if need_to_send:
             list_of_open_files.append(name_of_file)
             string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(list_of_open_files)
             general_comm.sendall(string_of_open_files)
     else:
         delete_file_msg = serverProtocol.serverProtocol.Delete_file_from_folder(name_of_file)
         nitur_comm.send(delete_file_msg, ip)
+
 
 
 def file_deleted(name_of_file, ip):
@@ -48,11 +52,15 @@ def file_deleted(name_of_file, ip):
     :return:
     """
     torrents_db = DB.DBClass()
-    if torrents_db.have_torrent(name_of_file):
-        if files_obj.delete_ip_from_torrent(name_of_file, ip):
+    have_torrent = torrents_db.have_torrent(name_of_file)
+    torrents_db.closeDb()
+    if have_torrent:
+        need_to_send = files_obj.delete_ip_from_torrent(name_of_file, ip)
+        if need_to_send:
             list_of_open_files.remove(name_of_file)
             string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(list_of_open_files)
             general_comm.sendall(string_of_open_files)
+
 
 
 def file_changed(name_of_file, ip):
@@ -63,7 +71,9 @@ def file_changed(name_of_file, ip):
     :return:
     """
     torrents_db = DB.DBClass()
-    if torrents_db.have_torrent(name_of_file):
+    have_torrent = torrents_db.have_torrent(name_of_file)
+    torrents_db.closeDb()
+    if have_torrent:
         if files_obj.delete_ip_from_torrent(name_of_file, ip):
             list_of_open_files.remove(name_of_file)
             string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(list_of_open_files)
@@ -121,13 +131,16 @@ def create_uplaod_socket(params):
     path_of_file, ip = params[0], params[1]
     file_name = os.path.basename(path_of_file)
     torrents_db = DB.DBClass()
-    if not torrents_db.have_torrent(file_name):
+    have_torrent = torrents_db.have_torrent(file_name)
+    torrents_db.closeDb()
+    if not have_torrent:
         upload_queue = queue.Queue()
         port = next(unused_ports)
         upload_comm = ServerComm.ServerComm(port, upload_queue, 8)
         threading.Thread(target=handle_upload_file, args=(upload_queue, upload_comm)).start()
         response = serverProtocol.serverProtocol.Response_for_upload_request(path_of_file, port)
         general_comm.send(response, ip)
+
 
 
 def handle_upload_file(upload_queue, upload_comm):
@@ -142,6 +155,7 @@ def handle_upload_file(upload_queue, upload_comm):
     if not torrents_db.have_torrent(file_name):
         files_obj.create_torrent_file(data, file_name)
         torrents_db.add_torrent(file_name)
+    torrents_db.closeDb()
     response = serverProtocol.serverProtocol.Response_for_upload()
     upload_comm.send(response, ip)
     upload_comm.close_socket()

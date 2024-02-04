@@ -7,10 +7,11 @@ import queue
 import time
 import clientProtocol
 import os
+import settingCli
 
 
 class Clientcomm(object):
-    def __init__(self, server_ip, message_queue, port, zfill_number):
+    def __init__(self, server_ip, message_queue, port, zfill_number, timer=1000):
         """
         :param server_ip:
         :param message_queue:
@@ -24,6 +25,7 @@ class Clientcomm(object):
         self.client_socket = None
         self.crypt_object = None
         self.is_socket_open = True
+        self.timer = timer
         threading.Thread(target=self._recv_messages).start()
 
     def _recv_messages(self):
@@ -35,7 +37,12 @@ class Clientcomm(object):
         self._xchange_key()
         while self.is_socket_open and self.crypt_object is not None:
             try:
+                self.client_socket.settimeout(self.timer)
                 len_of_message = self.client_socket.recv(self.zfill_number).decode()
+                print(len_of_message)
+            except socket.timeout:
+                ######
+                continue
             except Exception as e:
                 print(e)
                 sys.exit()
@@ -43,26 +50,51 @@ class Clientcomm(object):
                 self.close_socket()
                 break
             try:
+                self.client_socket.settimeout(self.timer)
                 encrypt_message = self.client_socket.recv(int(len_of_message)).decode()
+            except socket.timeout:
+                ######
+                continue
             except Exception as e:
                 print(e)
                 sys.exit()
             message = self.crypt_object.decrypt(encrypt_message)
-            self.message_queue.put(message)
+            if self.port == settingCli.P2P_PORT:
+                print(message, "client_comm")
+                self._recv_file(message)
+            else:
+                self.message_queue.put(message)
 
-    def _recv_file(self, opcode, file_name, file_length):
+    def _recv_file(self, message):
         """
         :param file_name:
         :param file_length:
         :return:
         """
-        data_part = bytearray()
-        while file_length >= 1024:
-            data_part += self.client_socket.recv(1024)
-            file_length -= 1024
-        if file_length != 0:
-            data_part += self.client_socket.recv(file_length)
-        self.message_queue.put(f"{opcode}{file_name}$%${file_length}$%${data_part})")
+        opcode, params = clientProtocol.clientProtocol.unpack_file(message)
+        if opcode == "01":
+            data_len, file_name, number_of_part = params[0], params[1], params[2]
+            data_part = bytearray()
+            while data_len >= 1024:
+                try:
+                    self.client_socket.settimeout(self.timer)
+                    data_part += self.client_socket.recv(1024).decode()
+                except socket.timeout:
+                    data_part = -1
+                    data_len = 0
+                    break
+                except Exception as e:
+                    print(e)
+                data_len -= 1024
+            if data_len != 0:
+                try:
+                    self.client_socket.settimeout(self.timer)
+                    data_part += self.client_socket.recv(data_len).decode()
+                except socket.timeout:
+                    data_part = -1
+                except Exception as e:
+                    print(e)
+            self.message_queue.put((self.server_ip, file_name, number_of_part, data_part))
 
     def _xchange_key(self):
         """
@@ -94,6 +126,7 @@ class Clientcomm(object):
         while self.crypt_object is None:
             continue
         if self.crypt_object is not None and self.is_socket_open:
+            print(message, "clientComm, send ")
             encrypt_msg = self.crypt_object.encrypt(message)
             len_encrypt_msg = str(len(encrypt_msg)).zfill(self.zfill_number).encode()
             try:
@@ -117,7 +150,6 @@ class Clientcomm(object):
             len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
             self.client_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
 
-
     def close_socket(self):
         """
         :return:
@@ -134,5 +166,5 @@ if __name__ == '__main__':
     with open(fr"T:\public\יב\imri\nexus\projectCode\projectCode\files\{file_name}", 'rb') as f:
         data = f.read()
 
-    header = clientProtocol.clientProtocol.Upload_file(file_name)
+    header = clientProtocol.clientProtocol.upload_file(file_name)
     c.send_file(data, header)

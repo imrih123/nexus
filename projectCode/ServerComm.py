@@ -6,7 +6,7 @@ import queue
 import time
 import settingSer
 import serverProtocol
-
+import settingCli
 
 class ServerComm(object):
     def __init__(self, port, message_queue, zfill_number):
@@ -49,7 +49,7 @@ class ServerComm(object):
                         del self.open_clients[current_socket]
                         break
                     message = self.open_clients[current_socket][1].decrypt(encrypt_message)
-                    if self.port in [settingSer.GENERAL_PORT, settingSer.NITUR_PORT]:
+                    if self.port in [settingSer.GENERAL_PORT, settingSer.NITUR_PORT, settingCli.P2P_PORT]:
                         self.message_queue.put((self.open_clients[current_socket][0], message))
                     else:
                         self._recv_file(current_socket, message)
@@ -122,6 +122,7 @@ class ServerComm(object):
             len_encrypt_data = str(len(encrypt_data)).zfill(self.zfill_number).encode()
             encrypt_header = crypto.encrypt(len_encrypt_data + header.encode())
             len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
+            print(len_encrypt_header)
             try:
                 current_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
             except Exception as e:
