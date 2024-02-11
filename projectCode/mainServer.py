@@ -57,10 +57,10 @@ def file_deleted(name_of_file, ip):
     if have_torrent:
         need_to_send = files_obj.delete_ip_from_torrent(name_of_file, ip)
         if need_to_send:
-            list_of_open_files.remove(name_of_file)
+            if name_of_file in list_of_open_files:
+                list_of_open_files.remove(name_of_file)
             string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(list_of_open_files)
             general_comm.sendall(string_of_open_files)
-
 
 
 def file_changed(name_of_file, ip):
@@ -74,8 +74,10 @@ def file_changed(name_of_file, ip):
     have_torrent = torrents_db.have_torrent(name_of_file)
     torrents_db.closeDb()
     if have_torrent:
-        if files_obj.delete_ip_from_torrent(name_of_file, ip):
-            list_of_open_files.remove(name_of_file)
+        need_to_send = files_obj.delete_ip_from_torrent(name_of_file, ip)
+        if need_to_send:
+            if name_of_file in list_of_open_files:
+                list_of_open_files.remove(name_of_file)
             string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(list_of_open_files)
             general_comm.sendall(string_of_open_files)
     delete_file_msg = serverProtocol.serverProtocol.Delete_file_from_folder(name_of_file)
@@ -142,7 +144,6 @@ def create_uplaod_socket(params):
         general_comm.send(response, ip)
 
 
-
 def handle_upload_file(upload_queue, upload_comm):
     """
 
@@ -152,6 +153,7 @@ def handle_upload_file(upload_queue, upload_comm):
     torrents_db = DB.DBClass()
     ip, message = upload_queue.get()
     file_name, data = message[1], message[2]
+    print(torrents_db.have_torrent(file_name))
     if not torrents_db.have_torrent(file_name):
         files_obj.create_torrent_file(data, file_name)
         torrents_db.add_torrent(file_name)

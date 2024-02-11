@@ -33,11 +33,11 @@ def p2p_download(params):
     """
     json_string = params[0]
     torrnet_dict = json.loads(json_string)
-    print(f"\n\n{torrnet_dict}")
     file_name = torrnet_dict["file name"]
     file_queue = queue.Queue()
     build_file = queue.Queue()
-    threading.Thread(target=_build_file, args=(build_file, file_name,)).start()
+    path = f"{settingCli.PATH_TO_SAVE_FILES}\{file_name}"
+    threading.Thread(target=_build_file, args=(build_file, path,)).start()
     list_of_pieces = [0 for _ in range(torrnet_dict['number of pieces'])]
     comms = {}
 
@@ -49,22 +49,28 @@ def p2p_download(params):
         comm.send(request_part)
 
     while True:
-        print(1)
         ip, file_name, number_of_part, data = file_queue.get()
-        print(2)
         # found part
         if data != -1:
-            if torrnet_dict["hash of pieces"][number_of_part] != Encryption_Decryption.AES_encryption.hash(data):
+            hash_part = Encryption_Decryption.AES_encryption.hash(data)
+            if torrnet_dict["hash of pieces"][number_of_part] != str(hash_part):
                 comms[ip][0].close_socket()
                 del comms[ip]
                 if len(comms) == 0:
-                    print("Fail")
+                    print("Fail - hash are not the same ")
                     # send to gui
                     break
             else:
-                build_file.put(data, number_of_part)
+                build_file.put((data, number_of_part))
                 index = _find_first(list_of_pieces, -1, number_of_part)
                 if index == -1:
+                    build_file.put((0, -1))
+                    data = ClientFiles.client_files.get_part_of_file(path, -1)
+                    full_hash = Encryption_Decryption.AES_encryption.hash(data)
+                    if torrnet_dict["full hash"] == str(full_hash):
+                        ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
+                    else:
+                        print("full hash - bad ")
                     print("good")
                     # send to gui
                     break
@@ -77,7 +83,7 @@ def p2p_download(params):
                 comms[ip][0].close_socket()
                 del comms[ip]
                 if len(comms) == 0:
-                    print("Fail")
+                    print("Fail - to many try's, closed socket")
                     # send to gui
                     break
             else:
@@ -89,7 +95,7 @@ def p2p_download(params):
                     comms[ip][0].close_socket()
                     del comms[ip]
                     if len(comms) == 0:
-                        print("Fail")
+                        print("Fail - last part wasn't found")
                         # send to gui
                         break
                 else:
@@ -97,15 +103,20 @@ def p2p_download(params):
                     comms[ip][0].send(request_part)
 
 
-def _build_file(build_queue, file_name):
+def _build_file(build_queue, path):
     """
 
     :return:
     """
-    data, number_of_part = build_queue.get()
-    with open(f"{settingCli.PATH_TO_SAVE_FILES}\{file_name}", 'a') as f:
+    f = open(path, 'wb')
+    while True:
+        data, number_of_part = build_queue.get()
+        if number_of_part is -1:
+            break
+        print(number_of_part, len(data), number_of_part*4096)
         f.seek(number_of_part*4096)
         f.write(data)
+    f.close()
 
 
 def _find_first(list_of_pieces, cant_recv, number_found=-1):

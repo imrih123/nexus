@@ -59,7 +59,7 @@ class clientProtocol(object):
 
     @staticmethod
     def send_file_part(file_name, number_of_part):
-        return f"01$%${number_of_part}$%${file_name}"
+        return f"$%$01$%${number_of_part}$%${file_name}"
 
     @staticmethod
     def added_file_nitur(file_name):

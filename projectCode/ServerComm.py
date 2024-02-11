@@ -122,7 +122,6 @@ class ServerComm(object):
             len_encrypt_data = str(len(encrypt_data)).zfill(self.zfill_number).encode()
             encrypt_header = crypto.encrypt(len_encrypt_data + header.encode())
             len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
-            print(len_encrypt_header)
             try:
                 current_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
             except Exception as e:
