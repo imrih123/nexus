@@ -27,11 +27,8 @@ class serverProtocol(object):
         return f"00{A}"
 
     @staticmethod
-    def Response_for_torrent_request(json_torrent):
-        res = "010"
-        if json_torrent is not None:
-            res = f"01$%${json_torrent}"
-        return res
+    def Response_for_torrent_request(file_name):
+        return f"$%$01$%$0$%${file_name}"
 
     @staticmethod
     def Response_for_upload_request(path_of_file, port):

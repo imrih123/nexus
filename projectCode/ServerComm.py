@@ -32,6 +32,7 @@ class ServerComm(object):
         self.server_socket = socket.socket()
         self.server_socket.bind(("0.0.0.0", self.port))
         self.server_socket.listen(3)
+
         while self.is_socket_open:
             rlist, wlist, xlist = select.select([self.server_socket] + list(self.open_clients.keys()),
                                                 list(self.open_clients.keys()), [], 0.3)
@@ -124,6 +125,7 @@ class ServerComm(object):
             len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
             try:
                 current_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
+                print(time.ctime())
             except Exception as e:
                 print(e)
                 del self.open_clients[current_socket]
@@ -147,21 +149,24 @@ class ServerComm(object):
         """
         opcode, params = serverProtocol.serverProtocol.unpack_file(message)
         len_encrypt_data = int(params[0])
-        data = bytearray()
+        full_data = bytearray()
         while len_encrypt_data >= 1024:
             try:
-                data.extend(current_socket.recv(1024))
+                data = current_socket.recv(1024)
+                print(data)
+                full_data.extend(data)
             except Exception as e:
                 print(e)
                 del self.open_clients[current_socket]
             len_encrypt_data -= 1024
         if len_encrypt_data != 0:
             try:
-                data.extend(current_socket.recv(len_encrypt_data))
+                data = current_socket.recv(len_encrypt_data)
+                full_data.extend(data)
             except Exception as e:
                 print(e)
                 del self.open_clients[current_socket]
-        data = self.open_clients[current_socket][1].decrypt(data)
+        data = self.open_clients[current_socket][1].decrypt(full_data)
         params.append(data)
         params[0] = len(data)
         self.message_queue.put((self.open_clients[current_socket][0], params))

@@ -8,7 +8,7 @@ import time
 import clientProtocol
 import os
 import settingCli
-
+import clientProtocol
 
 class Clientcomm(object):
     def __init__(self, server_ip, message_queue, port, zfill_number, timer=1000):
@@ -39,9 +39,9 @@ class Clientcomm(object):
             try:
                 self.client_socket.settimeout(self.timer)
                 len_of_message = self.client_socket.recv(self.zfill_number).decode()
-                print(len_of_message)
+                print(len_of_message, "len of message in client comm ")
             except socket.timeout:
-                ######
+                print("timeout", self.server_ip)
                 continue
             except Exception as e:
                 print(e)
@@ -53,49 +53,50 @@ class Clientcomm(object):
                 self.client_socket.settimeout(self.timer)
                 encrypt_message = self.client_socket.recv(int(len_of_message)).decode()
             except socket.timeout:
-                ######
+                print("timeout", self.server_ip)
                 continue
             except Exception as e:
                 print(e)
                 sys.exit()
             message = self.crypt_object.decrypt(encrypt_message)
-            if self.port == settingCli.P2P_PORT:
-                self._recv_file(message)
+            opcode, params = clientProtocol.clientProtocol.unpack_file(message)
+            if opcode == "01":
+                self._recv_file(params)
             else:
                 self.message_queue.put(message)
 
-    def _recv_file(self, message):
+    def _recv_file(self, params):
         """
         :param file_name:
         :param file_length:
         :return:
         """
-        opcode, params = clientProtocol.clientProtocol.unpack_file(message)
-        if opcode == "01":
-            data_len, number_of_part, file_name = int(params[0]), int(params[1]), params[2]
 
-            data_part = bytearray()
-            while data_len >= 1024:
-                try:
-                    self.client_socket.settimeout(self.timer)
-                    data_part += self.client_socket.recv(1024)
-                except socket.timeout:
-                    data_part = -1
-                    data_len = 0
-                    break
-                except Exception as e:
-                    print(e)
-                data_len -= 1024
-            if data_len != 0:
-                try:
-                    self.client_socket.settimeout(self.timer)
-                    data_part += self.client_socket.recv(data_len)
-                except socket.timeout:
-                    data_part = -1
-                except Exception as e:
-                    print(e)
-            data_part = self.crypt_object.decrypt(data_part)
-            self.message_queue.put((self.server_ip, file_name, number_of_part, data_part))
+        data_len, number_of_part, file_name = int(params[0]), int(params[1]), params[2]
+        data_part = bytearray()
+        while data_len >= 1024:
+            try:
+                self.client_socket.settimeout(self.timer)
+                data_part += self.client_socket.recv(1024)
+            except socket.timeout:
+                data_part = -1
+                print("timeout")
+                data_len = 0
+                break
+            except Exception as e:
+                print(e)
+            data_len -= 1024
+        if data_len != 0:
+            try:
+                self.client_socket.settimeout(self.timer)
+                data_part += self.client_socket.recv(data_len)
+            except socket.timeout:
+                data_part = -1
+                print("timeout")
+            except Exception as e:
+                print(e)
+        data_part = self.crypt_object.decrypt(data_part)
+        self.message_queue.put((self.server_ip, file_name, number_of_part, data_part))
 
     def _xchange_key(self):
         """

@@ -1,5 +1,5 @@
 import os
-
+import settingCli
 
 class client_files(object):
     @staticmethod
@@ -12,7 +12,7 @@ class client_files(object):
         :return:
         """
         with open(fr"{path_of_file}", 'wb') as f:
-            f.seek(number_of_part * 4096)
+            f.seek(number_of_part * settingCli.BLOCKSIZE)
             f.write(data)
 
     @staticmethod
@@ -27,8 +27,8 @@ class client_files(object):
             if number_of_part == -1:
                 data = f.read()
             else:
-                f.seek(number_of_part * 4096)
-                data = f.read(4096)
+                f.seek(number_of_part * settingCli.BLOCKSIZE)
+                data = f.read(settingCli.BLOCKSIZE)
         return data
 
     @staticmethod

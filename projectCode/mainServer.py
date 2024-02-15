@@ -118,9 +118,9 @@ def send_torrent(params):
     file_name = params[0]
     ip = params[1]
     torrent_file = files_obj.get_torrent_file(file_name)
-    response_for_torrent_request = serverProtocol.serverProtocol.Response_for_torrent_request(torrent_file)
-    print(response_for_torrent_request)
-    general_comm.send(response_for_torrent_request, ip)
+    header = serverProtocol.serverProtocol.Response_for_torrent_request(file_name)
+    print(len(torrent_file), "len of torrent ")
+    general_comm.send_file(torrent_file, header, ip)
 
 
 def create_uplaod_socket(params):
@@ -173,7 +173,7 @@ if __name__ == '__main__':
     general_queue = queue.Queue()
     nitur_queue = queue.Queue()
 
-    general_comm = ServerComm.ServerComm(1500, general_queue, 4)
+    general_comm = ServerComm.ServerComm(1500, general_queue, 6)
     nitur_comm = ServerComm.ServerComm(1600, nitur_queue, 2)
 
     threading.Thread(target=handle_general_msgs, args=(general_queue,)).start()

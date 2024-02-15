@@ -2,7 +2,7 @@ import Encryption_Decryption
 import math
 import json
 import os
-
+import settingSer
 
 class Server_files(object):
     def __init__(self, torrent_files_path):
@@ -16,11 +16,11 @@ class Server_files(object):
         :return:
         """
         list_of_hash = []
-        for i in range(math.ceil(len(data)/4096)):
-            data_part = data[i*4096:(i+1)*4096]
+        for i in range(math.ceil(len(data)/settingSer.BLOCKSIZE)):
+            data_part = data[i*settingSer.BLOCKSIZE:(i+1)*settingSer.BLOCKSIZE]
             list_of_hash.append(str(Encryption_Decryption.AES_encryption.hash(data_part)))
         full_hash = str(Encryption_Decryption.AES_encryption.hash(data))
-
+        print("full hash ----", full_hash)
         torrent_file = self._build_torrent_file\
             (data, filename, full_hash, list_of_hash)
         with open(f"{self.torrent_files_path}\\{filename}.json", 'w') as f:

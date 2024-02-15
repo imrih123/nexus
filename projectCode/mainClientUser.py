@@ -10,6 +10,7 @@ import settingCli
 import time
 import json
 import math
+import multiprocessing
 
 
 def handle_general_msgs(general_queue):
@@ -35,18 +36,23 @@ def p2p_download(params):
     torrnet_dict = json.loads(json_string)
     file_name = torrnet_dict["file name"]
     file_queue = queue.Queue()
+    # file_queue = multiprocessing.Queue()
     build_file = queue.Queue()
     path = f"{settingCli.PATH_TO_SAVE_FILES}\{file_name}"
     threading.Thread(target=_build_file, args=(build_file, path,)).start()
     list_of_pieces = [0 for _ in range(torrnet_dict['number of pieces'])]
     comms = {}
-
-    for ip in torrnet_dict['open ip']:
-        comm = ClientComm.Clientcomm(ip, file_queue, 3333, 4)
+    open_ips_dict = torrnet_dict['open ip']
+    test_time = time.time()
+    for ip in open_ips_dict:
+        comm = ClientComm.Clientcomm(ip, file_queue, settingCli.P2P_PORT, 4)
         comms[ip] = [comm, 0]
+
+    for ip in open_ips_dict:
         index = _find_first(list_of_pieces, -1, -1)
         request_part = clientProtocol.clientProtocol.request_part_file(file_name, index)
-        comm.send(request_part)
+        comms[ip][0].send(request_part)
+        print("send to ", ip)
 
     while True:
         ip, file_name, number_of_part, data = file_queue.get()
@@ -67,8 +73,10 @@ def p2p_download(params):
                     build_file.put((0, -1))
                     data = ClientFiles.client_files.get_part_of_file(path, -1)
                     full_hash = Encryption_Decryption.AES_encryption.hash(data)
+                    print(full_hash)
                     if torrnet_dict["full hash"] == str(full_hash):
                         ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
+                        print("the time of the download is ", time.time()-test_time)
                     else:
                         print("full hash - bad ")
                     print("good")
@@ -113,8 +121,7 @@ def _build_file(build_queue, path):
         data, number_of_part = build_queue.get()
         if number_of_part is -1:
             break
-        print(number_of_part, len(data), number_of_part*4096)
-        f.seek(number_of_part*4096)
+        f.seek(number_of_part*settingCli.BLOCKSIZE)
         f.write(data)
     f.close()
 
@@ -167,13 +174,13 @@ def create_socket_upload(params):
 
 if __name__ == '__main__':
     server_ip = settingCli.SERVER_IP
-    path_to_file = fr"C:\Users\talmid\Downloads\dog.jpg"
+    path_to_file = fr"C:\Users\talmid\Downloads\reef.zip"
     general_commands = {"01": p2p_download, "02": create_socket_upload}
     gui_commands = {}
     general_queue = queue.Queue()
     gui_queue = queue.Queue()
     list_of_open_file = []
-    general_comm = ClientComm.Clientcomm(server_ip, general_queue, 1500, 4)
+    general_comm = ClientComm.Clientcomm(server_ip, general_queue, 1500, 6)
     threading.Thread(target=handle_general_msgs, args=(general_queue, )).start()
     opcode = input(": ")
     if opcode == "upload":
@@ -182,6 +189,6 @@ if __name__ == '__main__':
 
     # time.sleep(3)
     elif opcode == "download":
-        request_torrent_file = clientProtocol.clientProtocol.request_torrent_file("dog.jpg")
+        request_torrent_file = clientProtocol.clientProtocol.request_torrent_file("dog1.jpg")
         general_comm.send(request_torrent_file)
 
