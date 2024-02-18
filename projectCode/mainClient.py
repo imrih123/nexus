@@ -30,10 +30,11 @@ def send_part_of_file(params):
     :return:
     """
     file_part, file_name, ip = int(params[0]), params[1], params[2]
+    print(file_part,file_name,ip, "header")
     data_of_part = ClientFiles.client_files. \
         get_part_of_file(f"{settingCli.NITUR_FOLDER}\\{file_name}", file_part)
     header = clientProtocol.clientProtocol.send_file_part(file_name, file_part)
-    print(header, ip, "send part of file")
+    print(data_of_part, "data of part ")
     upload_server.send_file(data_of_part, header, ip)
 
 

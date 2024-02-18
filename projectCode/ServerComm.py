@@ -121,7 +121,7 @@ class ServerComm(object):
             crypto = self.open_clients[current_socket][1]
             encrypt_data = crypto.encrypt(data)
             len_encrypt_data = str(len(encrypt_data)).zfill(self.zfill_number).encode()
-            encrypt_header = crypto.encrypt(len_encrypt_data + header.encode())
+            encrypt_header = crypto.encrypt(header.encode()+ len_encrypt_data)
             len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
             try:
                 current_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
@@ -153,7 +153,6 @@ class ServerComm(object):
         while len_encrypt_data >= 1024:
             try:
                 data = current_socket.recv(1024)
-                print(data)
                 full_data.extend(data)
             except Exception as e:
                 print(e)
@@ -167,6 +166,7 @@ class ServerComm(object):
                 print(e)
                 del self.open_clients[current_socket]
         data = self.open_clients[current_socket][1].decrypt(full_data)
+        print(data)
         params.append(data)
         params[0] = len(data)
         self.message_queue.put((self.open_clients[current_socket][0], params))
