@@ -21,9 +21,11 @@ def handle_general_msgs(general_queue):
     """
     while True:
         message = general_queue.get()
-        print(message, " handle general msgs client")
-        opcode, params = clientProtocol.clientProtocol.unpack(message)
-        general_commands[opcode](params)
+        if type(message) == tuple:
+            p2p_download(message)
+        else:
+            opcode, params = clientProtocol.clientProtocol.unpack(message)
+            general_commands[opcode](params)
 
 
 def p2p_download(params):
@@ -32,34 +34,50 @@ def p2p_download(params):
     :param params:
     :return:
     """
-    json_string = params[0]
+    json_string = params[3]
     torrnet_dict = json.loads(json_string)
+    print(torrnet_dict)
     file_name = torrnet_dict["file name"]
     file_queue = queue.Queue()
     # file_queue = multiprocessing.Queue()
-    build_file = queue.Queue()
-    path = f"{settingCli.PATH_TO_SAVE_FILES}\{file_name}"
-    threading.Thread(target=_build_file, args=(build_file, path,)).start()
-    list_of_pieces = [0 for _ in range(torrnet_dict['number of pieces'])]
     comms = {}
     open_ips_dict = torrnet_dict['open ip']
-    test_time = time.time()
+    number_of_pieces = torrnet_dict['number of pieces']
+    list_of_pieces = [0 for _ in range(number_of_pieces)]
+    threading.Thread(target=_get_parts_from_queue, args=(comms, torrnet_dict['hash of pieces'], torrnet_dict['full hash'], file_queue, file_name, list_of_pieces,)).start()
     for ip in open_ips_dict:
         comm = ClientComm.Clientcomm(ip, file_queue, settingCli.P2P_PORT, 4)
         comms[ip] = [comm, 0]
-
-    for ip in open_ips_dict:
         index = _find_first(list_of_pieces, -1, -1)
         request_part = clientProtocol.clientProtocol.request_part_file(file_name, index)
         comms[ip][0].send(request_part)
         print("send to ", ip)
 
+
+def _get_parts_from_queue(comms, list_of_hash, full_data_hash,file_queue, file_name, list_of_pieces):
+    """
+
+    :param comms:
+    :param list_of_hash:
+    :param full_data_hash:
+    :param file_queue:
+    :param file_name:
+    :param list_of_pieces:
+    :return:
+    """
+
+    test_time = time.time()
+    build_file = queue.Queue()
+    path = f"{settingCli.PATH_TO_SAVE_FILES}\{file_name}"
+    threading.Thread(target=_build_file, args=(build_file, path,)).start()
+
     while True:
         ip, file_name, number_of_part, data = file_queue.get()
+        print("the sender is: ", ip)
         # found part
         if data != -1:
             hash_part = Encryption_Decryption.AES_encryption.hash(data)
-            if torrnet_dict["hash of pieces"][number_of_part] != str(hash_part):
+            if list_of_hash[number_of_part] != str(hash_part):
                 comms[ip][0].close_socket()
                 del comms[ip]
                 if len(comms) == 0:
@@ -73,13 +91,11 @@ def p2p_download(params):
                     build_file.put((0, -1))
                     data = ClientFiles.client_files.get_part_of_file(path, -1)
                     full_hash = Encryption_Decryption.AES_encryption.hash(data)
-                    print(full_hash)
-                    if torrnet_dict["full hash"] == str(full_hash):
+                    if full_data_hash == str(full_hash):
                         ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
                         print("the time of the download is ", time.time()-test_time)
                     else:
                         print("full hash - bad ")
-                    print("good")
                     # send to gui
                     break
                 request_part = clientProtocol.clientProtocol.request_part_file(file_name, index)
@@ -168,7 +184,7 @@ def create_socket_upload(params):
     header = clientProtocol.clientProtocol.upload_file(file_name)
     upload_comm.send_file(data, header)
     response = upload_queue.get()
-    if response == "011":
+    if response == "111":
         ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
 
 
@@ -189,6 +205,6 @@ if __name__ == '__main__':
 
     # time.sleep(3)
     elif opcode == "download":
-        request_torrent_file = clientProtocol.clientProtocol.request_torrent_file("dog1.jpg")
+        request_torrent_file = clientProtocol.clientProtocol.request_torrent_file("reef.zip")
         general_comm.send(request_torrent_file)
 

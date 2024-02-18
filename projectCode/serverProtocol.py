@@ -28,7 +28,7 @@ class serverProtocol(object):
 
     @staticmethod
     def Response_for_torrent_request(file_name):
-        return f"$%$01$%$0$%${file_name}"
+        return f"01$%$0$%${file_name}$%$"
 
     @staticmethod
     def Response_for_upload_request(path_of_file, port):
@@ -36,7 +36,7 @@ class serverProtocol(object):
 
     @staticmethod
     def Response_for_upload():
-        return "011"
+        return "111"
 
     @staticmethod
     def Delete_file_from_folder(file_name):
