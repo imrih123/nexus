@@ -12,6 +12,9 @@ import json
 import math
 import multiprocessing
 from p2pProcess import _build_com
+import wx
+import graphics
+from pubsub import pub
 
 
 def handle_general_msgs(general_queue):
@@ -22,6 +25,7 @@ def handle_general_msgs(general_queue):
     """
     while True:
         message = general_queue.get()
+        print(message, "handle general msgs ")
         if type(message) == tuple:
             p2p_download(message)
         else:
@@ -31,7 +35,6 @@ def handle_general_msgs(general_queue):
 
 def p2p_download(params):
     """
-
     :param params:
     :return:
     """
@@ -194,23 +197,51 @@ def create_socket_upload(params):
         ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
 
 
+def create_list_of_files(params):
+    """
+
+    :param params:
+    :return:
+    """
+    params = [params]
+    print(params)
+    list_of_files = [[item.split(',') for item in sublist] for sublist in params]
+    print(list_of_files[0])
+    wx.CallAfter(pub.sendMessage, "new list", new_file_list=list_of_files[0])
+
+
+def get_message_from_gui(gui_queue):
+    """
+
+    :param gui_queue:
+    :return:
+    """
+    while True:
+        order, path = gui_queue.get()
+        if order == "download":
+            message = clientProtocol.clientProtocol.request_torrent_file(path)
+        elif order == "upload":
+            message = clientProtocol.clientProtocol.request_upload(path)
+        else:
+            print("wrong order", order)
+            continue
+        print(message)
+        general_comm.send(message)
+
+
 if __name__ == '__main__':
     server_ip = settingCli.SERVER_IP
     path_to_file = fr"C:\Users\talmid\Downloads\test3.zip"
-    general_commands = {"01": p2p_download, "02": create_socket_upload}
-    gui_commands = {}
+    general_commands = {"01": p2p_download, "02": create_socket_upload, "03": create_list_of_files}
     general_queue = queue.Queue()
     gui_queue = queue.Queue()
     list_of_open_file = []
     general_comm = ClientComm.Clientcomm(server_ip, general_queue, 1500, 6)
     threading.Thread(target=handle_general_msgs, args=(general_queue, )).start()
-    opcode = input(": ")
-    if opcode == "upload":
-        request_upload_file = clientProtocol.clientProtocol.request_upload(path_to_file)
-        general_comm.send(request_upload_file)
+    threading.Thread(target=get_message_from_gui, args=(gui_queue,)).start()
+    app = wx.App()
+    frame = graphics.MyFrame(None, "nexus", gui_queue)
+    app.MainLoop()
 
-    # time.sleep(3)
-    elif opcode == "download":
-        request_torrent_file = clientProtocol.clientProtocol.request_torrent_file("test3.zip")
-        general_comm.send(request_torrent_file)
+
 

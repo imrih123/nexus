@@ -63,6 +63,7 @@ class Clientcomm(object):
                     sys.exit()
                 message = self.crypt_object.decrypt(encrypt_message)
                 opcode, params = clientProtocol.clientProtocol.unpack(message)
+                print(opcode, params, "client comm ")
                 if opcode == "01":
                     self._recv_file(params)
                 else:

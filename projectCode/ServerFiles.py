@@ -4,6 +4,7 @@ import json
 import os
 import settingSer
 
+
 class Server_files(object):
     def __init__(self, torrent_files_path):
         self.torrent_files_path = torrent_files_path
@@ -20,7 +21,6 @@ class Server_files(object):
             data_part = data[i*settingSer.BLOCKSIZE:(i+1)*settingSer.BLOCKSIZE]
             list_of_hash.append(str(Encryption_Decryption.AES_encryption.hash(data_part)))
         full_hash = str(Encryption_Decryption.AES_encryption.hash(data))
-        print("full hash ----", full_hash)
         torrent_file = self._build_torrent_file\
             (data, filename, full_hash, list_of_hash)
         with open(f"{self.torrent_files_path}\\{filename}.json", 'w') as f:
@@ -55,12 +55,9 @@ class Server_files(object):
             list_of_ip.append(ip)
         data["open ip"] = list_of_ip
 
-        bol = len(data["open ip"]) == 1
-
         with open(fr"{self.torrent_files_path}\\{file_name}.json", "w") as f:
             json.dump(data, f)
-
-        return bol
+        return
 
     def get_torrent_file(self, file_name):
         """
@@ -90,11 +87,9 @@ class Server_files(object):
             list_of_ip.remove(ip)
         data["open ip"] = list_of_ip
 
-        bol = len(data["open ip"]) == 0
-
         with open(fr"{self.torrent_files_path}\\{file_name}.json", "w") as f:
             json.dump(data, f)
-        return bol
+        return
 
 
 if __name__ == '__main__':

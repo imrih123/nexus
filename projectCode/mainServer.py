@@ -33,15 +33,13 @@ def file_added(name_of_file, ip):
     have_torrent = torrents_db.have_torrent(name_of_file)
     torrents_db.closeDb()
     if have_torrent:
-        need_to_send = files_obj.add_ip_to_torrent(name_of_file, ip)
-        if need_to_send:
-            list_of_open_files.append(name_of_file)
-            string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(list_of_open_files)
-            general_comm.sendall(string_of_open_files)
+        files_obj.add_ip_to_torrent(name_of_file, ip)
+        open_files[name_of_file][1] = open_files[name_of_file][1]+1
+        string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(open_files)
+        general_comm.sendall(string_of_open_files)
     else:
         delete_file_msg = serverProtocol.serverProtocol.Delete_file_from_folder(name_of_file)
         nitur_comm.send(delete_file_msg, ip)
-
 
 
 def file_deleted(name_of_file, ip):
@@ -55,12 +53,11 @@ def file_deleted(name_of_file, ip):
     have_torrent = torrents_db.have_torrent(name_of_file)
     torrents_db.closeDb()
     if have_torrent:
-        need_to_send = files_obj.delete_ip_from_torrent(name_of_file, ip)
-        if need_to_send:
-            if name_of_file in list_of_open_files:
-                list_of_open_files.remove(name_of_file)
-            string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(list_of_open_files)
-            general_comm.sendall(string_of_open_files)
+        files_obj.delete_ip_from_torrent(name_of_file, ip)
+        if name_of_file in open_files:
+            open_files[name_of_file][1] = max(0, open_files[name_of_file][1]-1)
+        string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(open_files)
+        general_comm.sendall(string_of_open_files)
 
 
 def file_changed(name_of_file, ip):
@@ -74,12 +71,11 @@ def file_changed(name_of_file, ip):
     have_torrent = torrents_db.have_torrent(name_of_file)
     torrents_db.closeDb()
     if have_torrent:
-        need_to_send = files_obj.delete_ip_from_torrent(name_of_file, ip)
-        if need_to_send:
-            if name_of_file in list_of_open_files:
-                list_of_open_files.remove(name_of_file)
-            string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(list_of_open_files)
-            general_comm.sendall(string_of_open_files)
+        files_obj.delete_ip_from_torrent(name_of_file, ip)
+        if name_of_file in open_files:
+            open_files[name_of_file][1] = max(0, open_files[name_of_file][1]-1)
+        string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(open_files)
+        general_comm.sendall(string_of_open_files)
     delete_file_msg = serverProtocol.serverProtocol.Delete_file_from_folder(name_of_file)
     nitur_comm.send(delete_file_msg, ip)
 
@@ -107,6 +103,17 @@ def handle_general_msgs(general_queue):
         opcode, params = serverProtocol.serverProtocol.unpack(message)
         params.append(ip)
         general_commands[opcode](params)
+
+
+def send_list_of_files(params):
+    """
+
+    :param params:
+    :return:
+    """
+    ip = params[0]
+    message = serverProtocol.serverProtocol.Create_string_of_list(open_files)
+    general_comm.send(message, ip)
 
 
 def send_torrent(params):
@@ -152,10 +159,13 @@ def handle_upload_file(upload_queue, upload_comm):
     torrents_db = DB.DBClass()
     ip, message = upload_queue.get()
     file_name, data = message[1], message[2]
-    print(torrents_db.have_torrent(file_name))
     if not torrents_db.have_torrent(file_name):
         files_obj.create_torrent_file(data, file_name)
         torrents_db.add_torrent(file_name)
+        open_files[file_name] = [len(data), 0]
+        print(open_files, "in handle upload file ")
+        string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(open_files)
+        general_comm.sendall(string_of_open_files)
     torrents_db.closeDb()
     response = serverProtocol.serverProtocol.Response_for_upload()
     upload_comm.send(response, ip)
@@ -163,10 +173,10 @@ def handle_upload_file(upload_queue, upload_comm):
 
 
 if __name__ == '__main__':
-    general_commands = {"01": send_torrent, "02": create_uplaod_socket}
+    general_commands = {"01": send_torrent, "02": create_uplaod_socket, "03": send_list_of_files}
     nitur_commands = {"01": file_added, "02": file_deleted, "03": file_changed, "05": file_name_changed}
 
-    list_of_open_files = []
+    open_files = {}
     unused_ports = (x for x in range(2000, 2500))
 
     general_queue = queue.Queue()

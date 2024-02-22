@@ -44,4 +44,10 @@ class serverProtocol(object):
 
     @staticmethod
     def Create_string_of_list(list_of_open_file):
-        return f"03$%${'$%$'.join(list_of_open_file)}"
+        message = "03"
+        print(list_of_open_file, "list_of_open file server protocol ")
+        for file in list_of_open_file:
+            if list_of_open_file[file][1] != 0:
+                message += f"$%${file},{list_of_open_file[file][0]},{list_of_open_file[file][1]}"
+        print(message, "string of list ")
+        return message

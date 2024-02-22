@@ -54,7 +54,6 @@ class ServerComm(object):
                             self.message_queue.put((self.open_clients[current_socket][0], message))
                         else:
                             self._recv_file(current_socket, message)
-            
 
     def _xchange_key(self, new_client, addr):
         """
@@ -81,6 +80,8 @@ class ServerComm(object):
                     cryptobject = Encryption_Decryption.AES_encryption.set_key(B, a)
                     # exchange keys and create cryptObject
                     self.open_clients[new_client] = [addr[0], cryptobject]
+                    if self.port == settingSer.GENERAL_PORT:
+                        self.message_queue.put((self.open_clients[new_client][0], "03"))
 
     def _find_socket_by_ip(self, find_ip):
         """
@@ -106,6 +107,7 @@ class ServerComm(object):
             len_encrypt_msg = str(len(encrypt_msg)).zfill(self.zfill_number).encode()
             try:
                 current_socket.send(len_encrypt_msg+encrypt_msg)
+                print(ip)
             except Exception as e:
                 print(e)
                 del self.open_clients[current_socket]
@@ -136,8 +138,10 @@ class ServerComm(object):
         :param message:
         :return:
         """
-        for ip in self.open_clients.keys():
+        for sock in self.open_clients:
             try:
+                ip = self.open_clients[sock][0]
+                print(ip, "in send all ")
                 self.send(message, ip)
             except Exception as e:
                 print(e)
