@@ -119,7 +119,6 @@ def send_torrent(params):
     ip = params[1]
     torrent_file = files_obj.get_torrent_file(file_name)
     header = serverProtocol.serverProtocol.Response_for_torrent_request(file_name)
-    print(len(torrent_file), "len of torrent ")
     general_comm.send_file(torrent_file, header, ip)
 
 

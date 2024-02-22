@@ -21,7 +21,6 @@ class monitoring(object):
         self.path_to_monitor = path_to_monitor
         self.msgs_queue = queue
         self.list_of_new_files = []
-        print(not os.path.exists(path_to_monitor))
         if not os.path.exists(path_to_monitor):
             os.mkdir(path_to_monitor)
         attrs = os.stat(self.path_to_monitor).st_file_attributes

@@ -33,36 +33,40 @@ class Clientcomm(object):
         :return:
         """
         self.client_socket = socket.socket()
-        self.client_socket.connect((self.server_ip, self.port))
-        self._xchange_key()
-        while self.is_socket_open and self.crypt_object is not None:
-            try:
-                self.client_socket.settimeout(self.timer)
-                len_of_message = self.client_socket.recv(self.zfill_number).decode()
-            except socket.timeout:
-                print("timeout", self.server_ip)
-                continue
-            except Exception as e:
-                print(e)
-                sys.exit()
-            if len_of_message == '':
-                self.close_socket()
-                break
-            try:
-                self.client_socket.settimeout(self.timer)
-                encrypt_message = self.client_socket.recv(int(len_of_message)).decode()
-            except socket.timeout:
-                print("timeout", self.server_ip)
-                continue
-            except Exception as e:
-                print(e)
-                sys.exit()
-            message = self.crypt_object.decrypt(encrypt_message)
-            opcode, params = clientProtocol.clientProtocol.unpack(message)
-            if opcode == "01":
-                self._recv_file(params)
-            else:
-                self.message_queue.put(message)
+        try:
+            self.client_socket.connect((self.server_ip, self.port))
+        except Exception as e:
+            print(e)
+        else:
+            self._xchange_key()
+            while self.is_socket_open and self.crypt_object is not None:
+                try:
+                    self.client_socket.settimeout(self.timer)
+                    len_of_message = self.client_socket.recv(self.zfill_number).decode()
+                except socket.timeout:
+                    print("timeout", self.server_ip)
+                    continue
+                except Exception as e:
+                    print(e)
+                    sys.exit()
+                if len_of_message == '':
+                    self.close_socket()
+                    break
+                try:
+                    self.client_socket.settimeout(self.timer)
+                    encrypt_message = self.client_socket.recv(int(len_of_message)).decode()
+                except socket.timeout:
+                    print("timeout", self.server_ip)
+                    continue
+                except Exception as e:
+                    print(e)
+                    sys.exit()
+                message = self.crypt_object.decrypt(encrypt_message)
+                opcode, params = clientProtocol.clientProtocol.unpack(message)
+                if opcode == "01":
+                    self._recv_file(params)
+                else:
+                    self.message_queue.put(message)
 
     def _recv_file(self, params):
         """
@@ -72,7 +76,6 @@ class Clientcomm(object):
         """
 
         number_of_part, file_name, data_len = int(params[0]), params[1], int(params[2])
-        print(data_len, "data len")
         data_part = bytearray()
         while data_len >= 1024:
             # if len(data_part)+data_len != 82368:
@@ -90,7 +93,6 @@ class Clientcomm(object):
                 print(e)
             else:
                 data_len -= len(message)
-            print(len(data_part))
         if data_len != 0:
             try:
                 self.client_socket.settimeout(self.timer)
@@ -100,7 +102,6 @@ class Clientcomm(object):
                 print("timeout")
             except Exception as e:
                 print(e)
-        print(len(data_part), "data part ")
         data_part = self.crypt_object.decrypt(data_part)
         self.message_queue.put((self.server_ip, file_name, number_of_part, data_part))
 
@@ -162,6 +163,7 @@ class Clientcomm(object):
         :return:
         """
         self.is_socket_open = False
+        self.client_socket.close()
 
 
 if __name__ == '__main__':

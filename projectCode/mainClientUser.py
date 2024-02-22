@@ -11,6 +11,7 @@ import time
 import json
 import math
 import multiprocessing
+from p2pProcess import _build_com
 
 
 def handle_general_msgs(general_queue):
@@ -35,23 +36,27 @@ def p2p_download(params):
     :return:
     """
     json_string = params[3]
+    list_of_processes = []
     torrnet_dict = json.loads(json_string)
-    print(torrnet_dict)
     file_name = torrnet_dict["file name"]
-    file_queue = queue.Queue()
-    # file_queue = multiprocessing.Queue()
+    # file_queue = queue.Queue()
+    file_queue = multiprocessing.Queue()
     comms = {}
     open_ips_dict = torrnet_dict['open ip']
     number_of_pieces = torrnet_dict['number of pieces']
     list_of_pieces = [0 for _ in range(number_of_pieces)]
     threading.Thread(target=_get_parts_from_queue, args=(comms, torrnet_dict['hash of pieces'], torrnet_dict['full hash'], file_queue, file_name, list_of_pieces,)).start()
     for ip in open_ips_dict:
-        comm = ClientComm.Clientcomm(ip, file_queue, settingCli.P2P_PORT, 4)
-        comms[ip] = [comm, 0]
+        ip_queue = multiprocessing.Queue()
+        comms[ip] = [ip_queue, 0]
+        p = multiprocessing.Process(target=_build_com, args=(ip_queue, file_queue, ip, file_name,))
+        p.start()
+        list_of_processes.append(p)
         index = _find_first(list_of_pieces, -1, -1)
-        request_part = clientProtocol.clientProtocol.request_part_file(file_name, index)
-        comms[ip][0].send(request_part)
-        print("send to ", ip)
+        ip_queue.put(index)
+
+    for p in list_of_processes:
+        p.join()
 
 
 def _get_parts_from_queue(comms, list_of_hash, full_data_hash,file_queue, file_name, list_of_pieces):
@@ -73,12 +78,12 @@ def _get_parts_from_queue(comms, list_of_hash, full_data_hash,file_queue, file_n
 
     while True:
         ip, file_name, number_of_part, data = file_queue.get()
-        print("the sender is: ", ip)
+        # print("the sender is: ", ip)
         # found part
         if data != -1:
             hash_part = Encryption_Decryption.AES_encryption.hash(data)
             if list_of_hash[number_of_part] != str(hash_part):
-                comms[ip][0].close_socket()
+                comms[ip][0].put(-1)
                 del comms[ip]
                 if len(comms) == 0:
                     print("Fail - hash are not the same ")
@@ -94,17 +99,19 @@ def _get_parts_from_queue(comms, list_of_hash, full_data_hash,file_queue, file_n
                     if full_data_hash == str(full_hash):
                         ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
                         print("the time of the download is ", time.time()-test_time)
+                        # close all the sockets
+                        for ip in comms:
+                            comms[ip][0].put(-1)
                     else:
                         print("full hash - bad ")
                     # send to gui
                     break
-                request_part = clientProtocol.clientProtocol.request_part_file(file_name, index)
-                comms[ip][0].send(request_part)
+                comms[ip][0].put(index)
         # couldn't find part
         else:
             # to many try's
             if comms[ip][1] == 2:
-                comms[ip][0].close_socket()
+                comms[ip][0].put(-1)
                 del comms[ip]
                 if len(comms) == 0:
                     print("Fail - to many try's, closed socket")
@@ -116,15 +123,14 @@ def _get_parts_from_queue(comms, list_of_hash, full_data_hash,file_queue, file_n
                 index = _find_first(list_of_pieces, number_of_part)
                 # could find last part
                 if index == -2:
-                    comms[ip][0].close_socket()
+                    comms[ip][0].put(-1)
                     del comms[ip]
                     if len(comms) == 0:
                         print("Fail - last part wasn't found")
                         # send to gui
                         break
                 else:
-                    request_part = clientProtocol.clientProtocol.request_part_file(file_name, index)
-                    comms[ip][0].send(request_part)
+                    comms[ip][0].put(index)
 
 
 def _build_file(build_queue, path):
@@ -190,7 +196,7 @@ def create_socket_upload(params):
 
 if __name__ == '__main__':
     server_ip = settingCli.SERVER_IP
-    path_to_file = fr"C:\Users\talmid\Downloads\reef.zip"
+    path_to_file = fr"C:\Users\talmid\Downloads\test3.zip"
     general_commands = {"01": p2p_download, "02": create_socket_upload}
     gui_commands = {}
     general_queue = queue.Queue()
@@ -205,6 +211,6 @@ if __name__ == '__main__':
 
     # time.sleep(3)
     elif opcode == "download":
-        request_torrent_file = clientProtocol.clientProtocol.request_torrent_file("reef.zip")
+        request_torrent_file = clientProtocol.clientProtocol.request_torrent_file("test3.zip")
         general_comm.send(request_torrent_file)
 

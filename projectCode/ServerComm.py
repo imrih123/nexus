@@ -48,12 +48,13 @@ class ServerComm(object):
                     except Exception as e:
                         print(e)
                         del self.open_clients[current_socket]
-                        break
-                    message = self.open_clients[current_socket][1].decrypt(encrypt_message)
-                    if self.port in [settingSer.GENERAL_PORT, settingSer.NITUR_PORT, settingCli.P2P_PORT]:
-                        self.message_queue.put((self.open_clients[current_socket][0], message))
                     else:
-                        self._recv_file(current_socket, message)
+                        message = self.open_clients[current_socket][1].decrypt(encrypt_message)
+                        if self.port in [settingSer.GENERAL_PORT, settingSer.NITUR_PORT, settingCli.P2P_PORT]:
+                            self.message_queue.put((self.open_clients[current_socket][0], message))
+                        else:
+                            self._recv_file(current_socket, message)
+            
 
     def _xchange_key(self, new_client, addr):
         """
@@ -125,7 +126,6 @@ class ServerComm(object):
             len_encrypt_header = str(len(encrypt_header)).zfill(self.zfill_number).encode()
             try:
                 current_socket.send(len_encrypt_header + encrypt_header + encrypt_data)
-                print(time.ctime())
             except Exception as e:
                 print(e)
                 del self.open_clients[current_socket]
@@ -166,7 +166,6 @@ class ServerComm(object):
                 print(e)
                 del self.open_clients[current_socket]
         data = self.open_clients[current_socket][1].decrypt(full_data)
-        print(data)
         params.append(data)
         params[0] = len(data)
         self.message_queue.put((self.open_clients[current_socket][0], params))

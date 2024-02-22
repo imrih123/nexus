@@ -17,7 +17,6 @@ def handle_p2p_msgs(Server_upload_queue):
     """
     while True:
         ip, message = Server_upload_queue.get()
-        print(message, " handle p2p msgs client")
         opcode, params = clientProtocol.clientProtocol.unpack(message)
         params.append(ip)
         upload_server_commands[opcode](params)
@@ -30,11 +29,9 @@ def send_part_of_file(params):
     :return:
     """
     file_part, file_name, ip = int(params[0]), params[1], params[2]
-    print(file_part,file_name,ip, "header")
     data_of_part = ClientFiles.client_files. \
         get_part_of_file(f"{settingCli.NITUR_FOLDER}\\{file_name}", file_part)
     header = clientProtocol.clientProtocol.send_file_part(file_name, file_part)
-    print(data_of_part, "data of part ")
     upload_server.send_file(data_of_part, header, ip)
 
 
@@ -47,7 +44,6 @@ def handle_nitur_msgs(nitur_queue):
     """
     while True:
         opcode, file_name = nitur_queue.get()
-        print(opcode, file_name, "handle nitur msgs client")
         nitur_commands[opcode](file_name)
 
 
@@ -100,7 +96,6 @@ def handle_nitur_comm_msgs(nitur_comm_queue):
     while True:
         message = nitur_comm_queue.get()
         opcode, file_name = clientProtocol.clientProtocol.unpack(message)
-        print(opcode, file_name, "handle nitur comm msgs client")
         if opcode == "03":
             ClientFiles.client_files.delete_file(fr"{settingCli.NITUR_FOLDER}\\{file_name}")
 
