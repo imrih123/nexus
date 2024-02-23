@@ -1,44 +1,47 @@
 import wx
-import threading
-import queue
-import time
 import humanize
+import os
 from pubsub import pub
 
+
 class MyFrame(wx.Frame):
-    def __init__(self, parent, title, queue):
-        super(MyFrame, self).__init__(parent, title=title, size=(500, 350))
-        self.queue = queue
+    def __init__(self, parent, title, queue, logo_path):
+        super(MyFrame, self).__init__(parent, title=title, size=(600, 350))
         self.panel = wx.Panel(self)
-        self.panel.SetBackgroundColour(wx.Colour(240, 240, 240))
+        self.panel.SetBackgroundColour(f"#001f3f")
+        self.queue = queue
+        # List of lists: [file_name, size, number of clients]
+        self.file_list = []
+        self.progress_dialog = None
 
-        self.file_list = []  # List of lists: [file_name, size, number of clients]
-
-        self.upload_button = wx.Button(self.panel, label="Upload", pos=(30, 240), size=(100, 40))
-        self.download_button = wx.Button(self.panel, label="Download", pos=(160, 240), size=(100, 40))
+        self.upload_button = wx.Button(self.panel, label="Upload", pos=(30, 220), size=(100, 60))
+        self.download_button = wx.Button(self.panel, label="Download", pos=(160, 220), size=(100, 60))
 
         self.file_list_ctrl = wx.ListCtrl(self.panel, style=wx.LC_REPORT | wx.BORDER_SUNKEN, pos=(30, 30),
-                                          size=(440, 150))
-        self.file_list_ctrl.InsertColumn(0, 'File Name', width=100)
-        self.file_list_ctrl.InsertColumn(1, 'Size', width=100)
-        self.file_list_ctrl.InsertColumn(2, 'Clients', width=100)
-        self.file_list_ctrl.InsertColumn(3, 'estimated time', width=115)
-        # self.update_file_list()
-
-        self.SetBackgroundColour(wx.Colour(240, 240, 240))  # Set background color
-
-        self.upload_button.SetBackgroundColour(wx.Colour(0, 128, 255))  # Set button background color
-        self.upload_button.SetForegroundColour(wx.Colour(255, 255, 255))  # Set button text color
+                                          size=(540, 150))
+        self.file_list_ctrl.SetBackgroundColour(wx.Colour(255, 255, 255))
+        self.file_list_ctrl.InsertColumn(0, 'File Name', width=120)
+        self.file_list_ctrl.InsertColumn(1, 'Size', width=120)
+        self.file_list_ctrl.InsertColumn(2, 'Clients', width=120)
+        self.file_list_ctrl.InsertColumn(3, 'estimated time', width=155)
 
         self.download_button.SetBackgroundColour(wx.Colour(0, 160, 0))
         self.download_button.SetForegroundColour(wx.Colour(255, 255, 255))
 
+        self.upload_button.SetBackgroundColour(wx.Colour(0, 128, 255))
+        self.upload_button.SetForegroundColour(wx.Colour(255, 255, 255))
+
         self.Bind(wx.EVT_BUTTON, self.on_upload, self.upload_button)
         self.Bind(wx.EVT_BUTTON, self.on_download, self.download_button)
 
-        self.Show()
+        image_path = logo_path
+        image = wx.Image(image_path, wx.BITMAP_TYPE_ANY)
+        image = image.Scale(300, 115, wx.IMAGE_QUALITY_HIGH)
+        wx.StaticBitmap(self.panel, bitmap=wx.Bitmap(image), pos=(280, 195))
 
-        pub.subscribe( self.update_file_list, "new list")
+        self.Show()
+        pub.subscribe(self.update_file_list, "new list")
+        pub.subscribe(self.show_download_progress, "new part")
 
     def on_upload(self, event):
         """
@@ -51,7 +54,14 @@ class MyFrame(wx.Frame):
 
         if dialog.ShowModal() == wx.ID_OK:
             file_path = dialog.GetPath()
-            self.queue.put(("upload", file_path))
+            file_size = os.path.getsize(file_path)
+            # if file size is too big
+            if file_size > 5 * 1024 * 1024 * 1024:
+                wx.MessageBox("File size exceeds the maximum allowed (5GB). Please choose a smaller file.", "Error",
+                              wx.OK | wx.ICON_ERROR)
+            else:
+                # let the logic know upload is requested
+                self.queue.put(("upload", file_path))
 
         dialog.Destroy()
 
@@ -64,10 +74,38 @@ class MyFrame(wx.Frame):
         selected_index = self.file_list_ctrl.GetFirstSelected()
         if selected_index != -1:
             selected_file = self.file_list[selected_index][0]
+            # let the logic know download is requested
             self.queue.put(("download", selected_file))
-            # Implement your download logic here
+            self.upload_button.Enable(False)
+            self.download_button.Enable(False)
         else:
             wx.MessageBox("Please select a file to download.", "Error", wx.OK | wx.ICON_ERROR)
+
+    def show_download_progress(self, bytes_downloaded, total_bytes, name_of_file):
+        """
+
+        :param bytes_downloaded:
+        :param total_bytes:
+        :param name_of_file:
+        :return:
+        """
+        # If progress dialog doesn't exist, create it
+        if not self.progress_dialog:
+            self.progress_dialog = wx.ProgressDialog("Downloading", "Downloading file...", maximum=total_bytes,
+                                                     parent=self, style=wx.PD_AUTO_HIDE | wx.PD_CAN_ABORT)
+
+        # Update progress
+        self.progress_dialog.Update(bytes_downloaded)
+
+        # If download is complete, destroy the progress dialog and rest the progress screen
+        if bytes_downloaded == total_bytes:
+            self.progress_dialog.Destroy()
+            self.progress_dialog = None
+
+            # Show a message box when the download is complete
+            wx.MessageBox(f"Download of {name_of_file} complete!", "Success", wx.OK | wx.ICON_INFORMATION, self)
+            self.upload_button.Enable(True)
+            self.download_button.Enable(True)
 
     def update_file_list(self, new_file_list=None):
         """
@@ -87,7 +125,5 @@ class MyFrame(wx.Frame):
                 self.file_list_ctrl.InsertItem(i, file_info[0])
                 self.file_list_ctrl.SetItem(i, 1, f"{humanize.naturalsize(file_info[1])}".lower())
                 self.file_list_ctrl.SetItem(i, 2, file_info[2])
-                self.file_list_ctrl.SetItem(i, 3, f"{round(int(file_info[1])/81920/int(file_info[2]), 2)} seconds")
-
-
+                self.file_list_ctrl.SetItem(i, 3, f"{round(int(file_info[1]) / 81920 / int(file_info[2]), 2)} seconds")
 
