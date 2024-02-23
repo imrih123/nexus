@@ -6,7 +6,7 @@ from pubsub import pub
 
 class MyFrame(wx.Frame):
     def __init__(self, parent, title, queue, logo_path):
-        super(MyFrame, self).__init__(parent, title=title, size=(600, 350))
+        super(MyFrame, self).__init__(parent, title=title, size=(680, 350))
         self.panel = wx.Panel(self)
         self.panel.SetBackgroundColour(f"#001f3f")
         self.queue = queue
@@ -15,20 +15,25 @@ class MyFrame(wx.Frame):
         self.progress_dialog = None
 
         self.upload_button = wx.Button(self.panel, label="Upload", pos=(30, 220), size=(100, 60))
+        font = wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.NORMAL, faceName="Avenir")
+        self.upload_button.SetFont(font)
+
         self.download_button = wx.Button(self.panel, label="Download", pos=(160, 220), size=(100, 60))
+        font = wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.NORMAL, faceName="Avenir")
+        self.download_button.SetFont(font)
 
-        self.file_list_ctrl = wx.ListCtrl(self.panel, style=wx.LC_REPORT | wx.BORDER_SUNKEN, pos=(30, 30),
-                                          size=(540, 150))
+        self.file_list_ctrl = wx.ListCtrl(self.panel, style=wx.LC_REPORT | wx.BORDER_SUNKEN, pos=(35, 15),
+                                          size=(600, 170))
         self.file_list_ctrl.SetBackgroundColour(wx.Colour(255, 255, 255))
-        self.file_list_ctrl.InsertColumn(0, 'File Name', width=120)
-        self.file_list_ctrl.InsertColumn(1, 'Size', width=120)
-        self.file_list_ctrl.InsertColumn(2, 'Clients', width=120)
-        self.file_list_ctrl.InsertColumn(3, 'estimated time', width=155)
+        self.file_list_ctrl.InsertColumn(0, 'File Name', width=140)
+        self.file_list_ctrl.InsertColumn(1, 'Size', width=140)
+        self.file_list_ctrl.InsertColumn(2, 'Clients', width=130)
+        self.file_list_ctrl.InsertColumn(3, 'estimated time', width=165)
 
-        self.download_button.SetBackgroundColour(wx.Colour(0, 160, 0))
+        self.download_button.SetBackgroundColour(F"#36bf81")
         self.download_button.SetForegroundColour(wx.Colour(255, 255, 255))
 
-        self.upload_button.SetBackgroundColour(wx.Colour(0, 128, 255))
+        self.upload_button.SetBackgroundColour(F"#36bf81")
         self.upload_button.SetForegroundColour(wx.Colour(255, 255, 255))
 
         self.Bind(wx.EVT_BUTTON, self.on_upload, self.upload_button)
@@ -36,7 +41,7 @@ class MyFrame(wx.Frame):
 
         image_path = logo_path
         image = wx.Image(image_path, wx.BITMAP_TYPE_ANY)
-        image = image.Scale(300, 115, wx.IMAGE_QUALITY_HIGH)
+        image = image.Scale(380, 115, wx.IMAGE_QUALITY_HIGH)
         wx.StaticBitmap(self.panel, bitmap=wx.Bitmap(image), pos=(280, 195))
 
         self.Show()
@@ -107,19 +112,15 @@ class MyFrame(wx.Frame):
             self.upload_button.Enable(True)
             self.download_button.Enable(True)
 
-    def update_file_list(self, new_file_list=None):
+    def update_file_list(self, new_file_list):
         """
 
         :param new_file_list:
         :return:
         """
-        print("in update.....", new_file_list)
 
-        if new_file_list is not None:
-            self.file_list = new_file_list
-
+        self.file_list = new_file_list
         self.file_list_ctrl.DeleteAllItems()
-        print(self.file_list)
         if self.file_list != [[]]:
             for i, file_info in enumerate(self.file_list):
                 self.file_list_ctrl.InsertItem(i, file_info[0])
