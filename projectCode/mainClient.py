@@ -97,18 +97,18 @@ def handle_nitur_comm_msgs(nitur_comm_queue):
         message = nitur_comm_queue.get()
         opcode, file_name = clientProtocol.clientProtocol.unpack(message)
         if opcode == "03":
-            ClientFiles.client_files.delete_file(fr"{settingCli.NITUR_FOLDER}\\{file_name}")
+            ClientFiles.client_files.delete_file(fr"{settingCli.NITUR_FOLDER}\\{file_name[0]}")
 
 
 if __name__ == '__main__':
     nitur_queue = queue.Queue()
     nitur = monitoring.monitoring(settingCli.NITUR_FOLDER, nitur_queue)
 
-    nitur_comm_queue = queue.Queue()
-    nitur_comm = ClientComm.Clientcomm(settingCli.SERVER_IP, nitur_comm_queue, settingCli.NITUR_PORT, 2)
-
     upload_server_queue = queue.Queue()
     upload_server = ServerComm.ServerComm(settingCli.P2P_PORT, upload_server_queue, 4)
+
+    nitur_comm_queue = queue.Queue()
+    nitur_comm = ClientComm.Clientcomm(settingCli.SERVER_IP, nitur_comm_queue, settingCli.NITUR_PORT, 2)
 
     nitur_commands = {"01": add_file, "02": delete_file, "03": change_file, "05": change_file_name}
 

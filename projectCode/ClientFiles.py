@@ -39,7 +39,7 @@ class client_files(object):
         :param data:
         :return:
         """
-        with open(fr"{nitur_path}\\{name_of_file}", 'wb') as f:
+        with open(f"{nitur_path}\\{name_of_file}", 'wb') as f:
             f.write(data)
 
     @staticmethod

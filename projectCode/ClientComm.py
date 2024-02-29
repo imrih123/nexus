@@ -33,11 +33,13 @@ class Clientcomm(object):
         :return:
         """
         self.client_socket = socket.socket()
+        print(self.server_ip, self.port)
         try:
             self.client_socket.connect((self.server_ip, self.port))
         except Exception as e:
             print(e)
         else:
+            print("after xchange")
             self._xchange_key()
             while self.is_socket_open and self.crypt_object is not None:
                 try:
@@ -61,7 +63,7 @@ class Clientcomm(object):
                 except Exception as e:
                     print(e)
                     sys.exit()
-                message = self.crypt_object.decrypt(encrypt_message)
+                message = self.crypt_object.decrypt(encrypt_message).decode()
                 opcode, params = clientProtocol.clientProtocol.unpack(message)
                 print(opcode, params, "client comm ")
                 if opcode == "01":
@@ -79,8 +81,6 @@ class Clientcomm(object):
         number_of_part, file_name, data_len = int(params[0]), params[1], int(params[2])
         data_part = bytearray()
         while data_len >= 1024:
-            # if len(data_part)+data_len != 82368:
-            #     print(len(data_part))
             try:
                 self.client_socket.settimeout(self.timer)
                 message = self.client_socket.recv(1024)

@@ -2,6 +2,8 @@ import wx
 import humanize
 import os
 from pubsub import pub
+import settingCli
+import shutil
 
 
 class MyFrame(wx.Frame):
@@ -13,7 +15,7 @@ class MyFrame(wx.Frame):
         # List of lists: [file_name, size, number of clients]
         self.file_list = []
         self.progress_dialog = None
-
+        self.total_bytes_download = 0
         self.upload_button = wx.Button(self.panel, label="Upload", pos=(30, 220), size=(100, 60))
         font = wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.NORMAL, faceName="Avenir")
         self.upload_button.SetFont(font)
@@ -79,10 +81,22 @@ class MyFrame(wx.Frame):
         selected_index = self.file_list_ctrl.GetFirstSelected()
         if selected_index != -1:
             selected_file = self.file_list[selected_index][0]
-            # let the logic know download is requested
-            self.queue.put(("download", selected_file))
-            self.upload_button.Enable(False)
-            self.download_button.Enable(False)
+            if os.path.exists(f"{settingCli.NITUR_FOLDER}\\{selected_file}"):
+                result = wx.MessageBox("already have this file, copy file to downloads ?",
+                                       "Error",
+                                       wx.YES_NO | wx.ICON_WARNING)
+                if result == wx.YES:
+                    shutil.copy2(f"{settingCli.NITUR_FOLDER}\\{selected_file}",
+                                 f"{settingCli.PATH_TO_SAVE_FILES}\\{selected_file}")
+
+            elif os.path.isdir(selected_file):
+                wx.MessageBox("cant download directory, compress to zip file", "Error", wx.OK | wx.ICON_ERROR)
+
+            else:
+                # let the logic know download is requested
+                self.queue.put(("download", selected_file))
+                self.upload_button.Enable(False)
+                self.download_button.Enable(False)
         else:
             wx.MessageBox("Please select a file to download.", "Error", wx.OK | wx.ICON_ERROR)
 
@@ -94,23 +108,26 @@ class MyFrame(wx.Frame):
         :param name_of_file:
         :return:
         """
+        # if not os.path.exists(f"{settingCli.NITUR_FOLDER}\\{name_of_file}"):
         # If progress dialog doesn't exist, create it
-        if not self.progress_dialog:
+        if self.progress_dialog is None:
             self.progress_dialog = wx.ProgressDialog("Downloading", "Downloading file...", maximum=total_bytes,
                                                      parent=self, style=wx.PD_AUTO_HIDE | wx.PD_CAN_ABORT)
-
+        self.total_bytes_download += bytes_downloaded
         # Update progress
-        self.progress_dialog.Update(bytes_downloaded)
+        self.progress_dialog.Update(self.total_bytes_download)
 
         # If download is complete, destroy the progress dialog and rest the progress screen
-        if bytes_downloaded == total_bytes:
+        if total_bytes == self.total_bytes_download:
             self.progress_dialog.Destroy()
             self.progress_dialog = None
+            self.upload_button.Enable(True)
+            self.download_button.Enable(True)
+            self.total_bytes_download = 0
 
             # Show a message box when the download is complete
             wx.MessageBox(f"Download of {name_of_file} complete!", "Success", wx.OK | wx.ICON_INFORMATION, self)
-            self.upload_button.Enable(True)
-            self.download_button.Enable(True)
+
 
     def update_file_list(self, new_file_list):
         """

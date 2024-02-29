@@ -93,15 +93,7 @@ class monitoring(object):
 
                         elif action == 5:
                             self.msgs_queue.put(("05", filename))
-                        else:
-                            print(action)
 
         except Exception as e:
             win32file.FindCloseChangeNotification(change_handle)
 
-
-if __name__ == '__main__':
-    q = queue.Queue()
-    c = monitoring(fr"T:\public\יב\imri\nexus\projectCode\\.nitur", q)
-    while True:
-        print(q.get())

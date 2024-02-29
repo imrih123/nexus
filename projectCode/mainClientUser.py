@@ -25,7 +25,6 @@ def handle_general_msgs(general_queue):
     """
     while True:
         message = general_queue.get()
-        print(message, "handle general msgs ")
         if type(message) == tuple:
             p2p_download(message)
         else:
@@ -42,13 +41,14 @@ def p2p_download(params):
     list_of_processes = []
     torrnet_dict = json.loads(json_string)
     file_name = torrnet_dict["file name"]
+    len_of_file = torrnet_dict["len of file"]
     # file_queue = queue.Queue()
     file_queue = multiprocessing.Queue()
     comms = {}
     open_ips_dict = torrnet_dict['open ip']
     number_of_pieces = torrnet_dict['number of pieces']
     list_of_pieces = [0 for _ in range(number_of_pieces)]
-    threading.Thread(target=_get_parts_from_queue, args=(comms, torrnet_dict['hash of pieces'], torrnet_dict['full hash'], file_queue, file_name, list_of_pieces,)).start()
+    threading.Thread(target=_get_parts_from_queue, args=(comms, torrnet_dict['hash of pieces'], torrnet_dict['full hash'], file_queue, file_name, list_of_pieces,len_of_file,)).start()
     for ip in open_ips_dict:
         ip_queue = multiprocessing.Queue()
         comms[ip] = [ip_queue, 0]
@@ -58,11 +58,8 @@ def p2p_download(params):
         index = _find_first(list_of_pieces, -1, -1)
         ip_queue.put(index)
 
-    for p in list_of_processes:
-        p.join()
 
-
-def _get_parts_from_queue(comms, list_of_hash, full_data_hash,file_queue, file_name, list_of_pieces):
+def _get_parts_from_queue(comms, list_of_hash, full_data_hash,file_queue, file_name, list_of_pieces, len_of_file):
     """
 
     :param comms:
@@ -78,11 +75,8 @@ def _get_parts_from_queue(comms, list_of_hash, full_data_hash,file_queue, file_n
     build_file = queue.Queue()
     path = f"{settingCli.PATH_TO_SAVE_FILES}\{file_name}"
     threading.Thread(target=_build_file, args=(build_file, path,)).start()
-
     while True:
         ip, file_name, number_of_part, data = file_queue.get()
-        # print("the sender is: ", ip)
-        # found part
         if data != -1:
             hash_part = Encryption_Decryption.AES_encryption.hash(data)
             if list_of_hash[number_of_part] != str(hash_part):
@@ -90,10 +84,10 @@ def _get_parts_from_queue(comms, list_of_hash, full_data_hash,file_queue, file_n
                 del comms[ip]
                 if len(comms) == 0:
                     print("Fail - hash are not the same ")
-                    # send to gui
                     break
             else:
                 build_file.put((data, number_of_part))
+                wx.CallAfter(pub.sendMessage, "new part", bytes_downloaded=len(data), total_bytes=len_of_file, name_of_file=file_name)
                 index = _find_first(list_of_pieces, -1, number_of_part)
                 if index == -1:
                     build_file.put((0, -1))
@@ -101,13 +95,12 @@ def _get_parts_from_queue(comms, list_of_hash, full_data_hash,file_queue, file_n
                     full_hash = Encryption_Decryption.AES_encryption.hash(data)
                     if full_data_hash == str(full_hash):
                         ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
-                        print("the time of the download is ", time.time()-test_time)
                         # close all the sockets
                         for ip in comms:
                             comms[ip][0].put(-1)
+                            break
                     else:
                         print("full hash - bad ")
-                    # send to gui
                     break
                 comms[ip][0].put(index)
         # couldn't find part
@@ -118,7 +111,6 @@ def _get_parts_from_queue(comms, list_of_hash, full_data_hash,file_queue, file_n
                 del comms[ip]
                 if len(comms) == 0:
                     print("Fail - to many try's, closed socket")
-                    # send to gui
                     break
             else:
                 # add a try
@@ -204,9 +196,7 @@ def create_list_of_files(params):
     :return:
     """
     params = [params]
-    print(params)
     list_of_files = [[item.split(',') for item in sublist] for sublist in params]
-    print(list_of_files[0])
     wx.CallAfter(pub.sendMessage, "new list", new_file_list=list_of_files[0])
 
 
@@ -223,9 +213,7 @@ def get_message_from_gui(gui_queue):
         elif order == "upload":
             message = clientProtocol.clientProtocol.request_upload(path)
         else:
-            print("wrong order", order)
             continue
-        print(message)
         general_comm.send(message)
 
 
@@ -240,7 +228,7 @@ if __name__ == '__main__':
     threading.Thread(target=handle_general_msgs, args=(general_queue, )).start()
     threading.Thread(target=get_message_from_gui, args=(gui_queue,)).start()
     app = wx.App()
-    frame = graphics.MyFrame(None, "nexus", gui_queue)
+    frame = graphics.MyFrame(None, "nexus", gui_queue,logo_path=fr"T:\public\יב\imri\nexus-main\mylogo.png")
     app.MainLoop()
 
 
