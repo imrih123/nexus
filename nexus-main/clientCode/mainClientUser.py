@@ -7,7 +7,6 @@ import queue
 import threading
 import os
 from allcode import settingCli
-import time
 import json
 import multiprocessing
 import wx
@@ -17,9 +16,8 @@ from pubsub import pub
 
 def handle_general_msgs(general_queue):
     """
-
-    :param general_queue:
-    :return:
+    call the func by the opcode
+    :param general_queue: the queue of the general comm
     """
     while True:
         message = general_queue.get()
@@ -32,27 +30,32 @@ def handle_general_msgs(general_queue):
 
 def p2p_download(params):
     """
-    :param params:
-    :return:
+    download the file using p2p connection
+    :param params:list of the params
     """
     json_string = params[3]
     list_of_processes = []
     torrnet_dict = json.loads(json_string)
     file_name = torrnet_dict["file name"]
     len_of_file = torrnet_dict["len of file"]
-    # file_queue = queue.Queue()
     file_queue = multiprocessing.Queue()
     comms = {}
     open_ips_dict = torrnet_dict['open ip']
     number_of_pieces = torrnet_dict['number of pieces']
+    # create list of pieces
     list_of_pieces = [0 for _ in range(number_of_pieces)]
-    threading.Thread(target=_get_parts_from_queue, args=(comms, torrnet_dict['hash of pieces'], torrnet_dict['full hash'], file_queue, file_name, list_of_pieces,len_of_file,)).start()
+    # start a thread to get the parts from the queue
+    threading.Thread(target=_get_parts_from_queue, args=(comms, torrnet_dict['hash of pieces'], torrnet_dict['full hash'], file_queue, file_name, list_of_pieces, len_of_file,)).start()
+
+    # for each ip create comm
     for ip in open_ips_dict:
         ip_queue = multiprocessing.Queue()
         comms[ip] = [ip_queue, 0]
+        # start a process for each ip
         p = multiprocessing.Process(target=_build_com, args=(ip_queue, file_queue, ip, file_name,))
         p.start()
         list_of_processes.append(p)
+        # get the index of the next part
         index = _find_first(list_of_pieces, -1, -1)
         ip_queue.put(index)
 
@@ -60,51 +63,62 @@ def p2p_download(params):
 def _get_parts_from_queue(comms, list_of_hash, full_data_hash,file_queue, file_name, list_of_pieces, len_of_file):
     """
 
-    :param comms:
-    :param list_of_hash:
-    :param full_data_hash:
-    :param file_queue:
-    :param file_name:
-    :param list_of_pieces:
-    :return:
+    get the parts of the file from the queue check the hash and update the graphics
+    :param comms: list of comm
+    :param list_of_hash: list of parts hash
+    :param full_data_hash: the full hash of the data
+    :param file_queue:the queue connect to the every process
+    :param file_name: the name of the file
+    :param list_of_pieces: the list of each piece status
     """
-
-    test_time = time.time()
+    global abort
+    first_part = True
     build_file = queue.Queue()
     path = f"{settingCli.PATH_TO_SAVE_FILES}\{file_name}"
+    # thread that build the file
     threading.Thread(target=_build_file, args=(build_file, path,)).start()
-    while True:
+    while not abort:
         ip, file_name, number_of_part, data = file_queue.get()
+        # not a time out
         if data != -1:
             hash_part = Encryption_Decryption.AES_encryption.hash(data)
+            # check hash
+            # bad hash
             if list_of_hash[number_of_part] != str(hash_part):
+                # disconnect
                 comms[ip][0].put(-1)
                 del comms[ip]
+                # if last comm
                 if len(comms) == 0:
                     print("Fail - hash are not the same ")
                     break
+            # good hash
             else:
+                # add the part to the file
                 build_file.put((data, number_of_part))
-                wx.CallAfter(pub.sendMessage, "new part", bytes_downloaded=len(data), total_bytes=len_of_file, name_of_file=file_name)
+                # let the graphics know
+                wx.CallAfter(pub.sendMessage, "new part", bytes_downloaded=len(data), total_bytes=len_of_file, name_of_file=file_name, first_part=first_part)
+                # not the first part anymore
+                first_part = False
+                # get the index of the next part to download
                 index = _find_first(list_of_pieces, -1, number_of_part)
+                # all the part are done
                 if index == -1:
+                    # end the func that build the file
                     build_file.put((0, -1))
                     data = ClientFiles.client_files.get_part_of_file(path, -1)
                     full_hash = Encryption_Decryption.AES_encryption.hash(data)
+                    # check the full hash
                     if full_data_hash == str(full_hash):
                         ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
-                        # close all the sockets
-                        for ip in comms:
-                            comms[ip][0].put(-1)
-                            break
-                    else:
-                        print("full hash - bad ")
                     break
+                # ask for the next part
                 comms[ip][0].put(index)
         # couldn't find part
         else:
-            # to many try's
+            # after 3 try's
             if comms[ip][1] == 2:
+                # close the comm
                 comms[ip][0].put(-1)
                 del comms[ip]
                 if len(comms) == 0:
@@ -124,16 +138,22 @@ def _get_parts_from_queue(comms, list_of_hash, full_data_hash,file_queue, file_n
                         break
                 else:
                     comms[ip][0].put(index)
+    # close all the sockets
+    for ip in comms:
+        comms[ip][0].put(-1)
+    abort = False
 
 
 def _build_file(build_queue, path):
     """
-
-    :return:
+    open the file, build the file with data from the queue and close the file
+    :param build_queue: the queue
+    :param path: the path
     """
     f = open(path, 'wb')
     while True:
         data, number_of_part = build_queue.get()
+        # -1 = last part
         if number_of_part is -1:
             break
         f.seek(number_of_part*settingCli.BLOCKSIZE)
@@ -144,54 +164,65 @@ def _build_file(build_queue, path):
 def _find_first(list_of_pieces, cant_recv, number_found=-1):
     """
 
-    :param list_of_pieces:
-    :param number_of_clients:
+    :param list_of_pieces: the list of the status
+    :param cant_recv: if part fail, dont ask for him again
+    :param number_found: the number of part that was found
     :return:
-    -1 = found all pieces
-    -2 = cant find other piece
-
     """
+    # if a number was found
     if number_found != -1:
+        # change the status of the part
         list_of_pieces[number_found] = -1
+    # if all the parts found return -1
     if list_of_pieces.count(-1) == len(list_of_pieces):
         index = -1
     else:
         if cant_recv != -1:
+            # if a part wasn't found change the status
             list_of_pieces[cant_recv] -= 1
+        # find new part to ask
         number_list = [n for n in list_of_pieces if n >= 0 and n != cant_recv]
+        # if no other part was found
         if len(number_list) == 0:
+            # delete the comm
             index = -2
         else:
+            # ask for the part with the min number of working clients on him
             min_number = min(number_list)
             index = list_of_pieces.index(min_number)
+            # change the status
             list_of_pieces[index] += 1
     return index
 
 
 def create_socket_upload(params):
     """
-
-    :param port:
-    :param name_of_file:
+    create a comm and upload the file
+    :param params:
     :return:
     """
     port, path_of_file = int(params[0]), params[1]
-    upload_queue = queue.Queue()
-    file_name = os.path.basename(path_of_file)
-    upload_comm = ClientComm.Clientcomm(server_ip, upload_queue, port, 8)
-    data = ClientFiles.client_files.get_part_of_file(path_of_file, -1)
-    header = clientProtocol.clientProtocol.upload_file(file_name)
-    upload_comm.send_file(data, header)
-    response = upload_queue.get()
-    if response == "111":
-        ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
+    if port != -1:
+        upload_queue = queue.Queue()
+        file_name = os.path.basename(path_of_file)
+        # create comm
+        upload_comm = ClientComm.Clientcomm(server_ip, upload_queue, port, 8)
+        data = ClientFiles.client_files.get_part_of_file(path_of_file, -1)
+        header = clientProtocol.clientProtocol.upload_file(file_name)
+        # send the data
+        upload_comm.send_file(data, header)
+        response = upload_queue.get()
+        if response == "111":
+            ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
+    else:
+        # if file already exists
+        wx.CallAfter(pub.sendMessage, "file exists")
 
 
 def create_list_of_files(params):
     """
-
-    :param params:
-    :return:
+    call a func in the graphics to update the list of file
+    :param params: list of files
     """
     params = [params]
     list_of_files = [[item.split(',') for item in sublist] for sublist in params]
@@ -200,16 +231,20 @@ def create_list_of_files(params):
 
 def get_message_from_gui(gui_queue):
     """
-
-    :param gui_queue:
-    :return:
+    send to the server the command the user did
+    :param gui_queue: the queue connect the qui to the logic
     """
+    global abort
     while True:
         order, path = gui_queue.get()
         if order == "download":
             message = clientProtocol.clientProtocol.request_torrent_file(path)
         elif order == "upload":
             message = clientProtocol.clientProtocol.request_upload(path)
+        elif order == "abort":
+            abort = True
+            # close the loop of the download
+            continue
         else:
             continue
         general_comm.send(message)
@@ -218,13 +253,19 @@ def get_message_from_gui(gui_queue):
 if __name__ == '__main__':
     server_ip = settingCli.SERVER_IP
     path_to_file = fr"C:\Users\talmid\Downloads\test3.zip"
+    # all the general opcodes and funcs
     general_commands = {"01": p2p_download, "02": create_socket_upload, "03": create_list_of_files}
     general_queue = queue.Queue()
     gui_queue = queue.Queue()
     list_of_open_file = []
+    abort = False
+
+    # create the general comm
     general_comm = ClientComm.Clientcomm(server_ip, general_queue, 1500, 6)
+    # start the handles
     threading.Thread(target=handle_general_msgs, args=(general_queue, )).start()
     threading.Thread(target=get_message_from_gui, args=(gui_queue,)).start()
+    # start the main thread of the graphics
     app = wx.App()
     frame = graphics.MyFrame(None, "nexus", gui_queue,logo_path=fr"T:\public\יב\imri\nexus-main\mylogo.png")
     app.MainLoop()

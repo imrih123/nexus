@@ -9,7 +9,7 @@ class AES_encryption(object):
     def __init__(self, key):
         """
 
-        :param key:
+        :param key: the key
         """
         self.bs = AES.block_size
         self.key = hashlib.sha256(str(key).encode()).digest()
@@ -17,8 +17,8 @@ class AES_encryption(object):
     def encrypt(self, message):
         """
 
-        :param message:
-        :return:
+        :param message: the message to encrypt
+        :return: the encrypted message
         """
         if type(message) == str:
             message = message.encode()
@@ -30,8 +30,8 @@ class AES_encryption(object):
     def decrypt(self, encrypt_message):
         """
 
-        :param encrypt_message:
-        :return:
+        :param encrypt_message: the message after encrypt
+        :return: the origin message
         """
         enc = base64.b64decode(encrypt_message)
         iv = enc[:AES.block_size]
@@ -41,25 +41,33 @@ class AES_encryption(object):
     def _pad(self, message):
         """
 
-        :param message:
-        :return:
+        :param message: the message
+        :return: message with pading
         """
         return message + (self.bs - len(message) % self.bs) * chr(self.bs - len(message) % self.bs).encode()
 
     def _unpad(self, message):
         """
 
-        :param message:
-        :return:
+        :param message: the message with pad
+        :return: the message
         """
         return message[:-ord(message[len(message) - 1:])]
 
     @staticmethod
     def hash(message):
+        """
+
+        :param message: the message
+        :return: the message after hash
+        """
         return hashlib.sha256(message).digest()
 
     @staticmethod
     def get_dif_Num():
+        """
+        :return: 2 numbers in dif format
+        """
         a = random.randint(1, p)
         return a, str((g**a) % p)
 
@@ -69,7 +77,7 @@ class AES_encryption(object):
 
         :param A:
         :param B:
-        :return:
+        :return: the key
         """
         return AES_encryption((int(B)**int(a)) % p)
 

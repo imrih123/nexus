@@ -8,7 +8,11 @@ import ctypes
 
 class Server_files(object):
     def __init__(self, torrent_files_path):
+        """
+        :param torrent_files_path: the path of the torrent
+        """
         self.torrent_files_path = torrent_files_path
+        # create the dir
         if not os.path.exists(torrent_files_path):
             os.mkdir(torrent_files_path)
             attrs = ctypes.windll.kernel32.GetFileAttributesW(torrent_files_path)
@@ -17,10 +21,9 @@ class Server_files(object):
 
     def create_torrent_file(self, data, filename):
         """
-
-        :param data:
-        :param filename:
-        :return:
+        create the torrent file
+        :param data: the data of the file
+        :param filename: the name of the file
         """
         list_of_hash = []
         for i in range(math.ceil(len(data)/settingSer.BLOCKSIZE)):
@@ -35,10 +38,10 @@ class Server_files(object):
     def _build_torrent_file(self, file_data, file_name, full_hash, parts_hash):
         """
 
-        :param file_data:
-        :param file_name:
-        :param full_hash:
-        :param parts_hash:
+        :param file_data: the data
+        :param file_name: the name
+        :param full_hash: the full hash of the file
+        :param parts_hash: list of the parts hash
         :return:
         """
         json_file = {"file name": file_name, "open ip": [],
@@ -48,10 +51,9 @@ class Server_files(object):
 
     def add_ip_to_torrent(self, file_name, ip):
         """
-
-        :param file_name:
-        :param ip:
-        :return:
+        add ip to the list of open ips
+        :param file_name: the name
+        :param ip: the ip
         """
         with open(f"{self.torrent_files_path}\\{file_name}.json", "r") as f:
             data = json.load(f)
@@ -65,25 +67,26 @@ class Server_files(object):
             json.dump(data, f)
         return
 
-    def get_torrent_file(self, file_name):
+    def get_torrent_file(self, file_name, string=True):
         """
 
-        :param file_name:
-        :return:
+        :param file_name: the name
+        :param string: return as a string
+        :return: the torrent
         """
         data = None
         if os.path.exists(f"{self.torrent_files_path}\\{file_name}.json"):
             with open(f"{self.torrent_files_path}\\{file_name}.json", "r") as f:
                 data = json.load(f)
-                data = json.dumps(data)
+                if string:
+                    data = json.dumps(data)
         return data
 
     def delete_ip_from_torrent(self, file_name, ip):
         """
-
-        :param file_name:
-        :param ip:
-        :return:
+        remove the ip from the open ip list
+        :param file_name: the name of the file
+        :param ip: the ip
         """
         boolean = False
         with open(f"{self.torrent_files_path}\\{file_name}.json", "r") as f:
@@ -101,9 +104,9 @@ class Server_files(object):
 
     def handdle_disconnect(self, ip):
         """
-
-        :param ip:
-        :return:
+        remove the ip of every torrent file
+        :param ip: the ip of the client
+        :return: list of the file that have been deleted
         """
         list_of_deleted_ips = []
         files_name = os.listdir(self.torrent_files_path)

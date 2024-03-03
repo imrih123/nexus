@@ -6,15 +6,15 @@ from allcode import settingCli
 def _build_com(main_queue, file_queue, ip, file_name):
     """
 
-    :param main_queue:
-    :param file_queue:
-    :param ip:
-    :param file_name:
-    :return:
+    :param main_queue: the queue connect to the logic
+    :param file_queue: the queue that recv the files
+    :param ip: the ip of the server
+    :param file_name:the name of the file
     """
     comm = ClientComm.Clientcomm(ip, file_queue, settingCli.P2P_PORT, 4)
     while True:
         index = main_queue.get()
+        # close the socket
         if index == -1:
             comm.close_socket()
         else:

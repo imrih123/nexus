@@ -2,17 +2,16 @@ import threading
 import socket
 from allcode import Encryption_Decryption
 import sys
-import queue
 from clientCode import clientProtocol
 
 
 class Clientcomm(object):
     def __init__(self, server_ip, message_queue, port, zfill_number, timer=1000):
         """
-        :param server_ip:
-        :param message_queue:
-        :param port:
-        :param zfill_number:
+        :param server_ip: ip of the server
+        :param message_queue: the queue to put the messages in for the logic
+        :param port:the server port
+        :param zfill_number: the number to zfill the message
         """
         self.server_ip = server_ip
         self.message_queue = message_queue
@@ -26,7 +25,7 @@ class Clientcomm(object):
 
     def _recv_messages(self):
         """
-        :return:
+        the main loop the recv the messages
         """
         self.client_socket = socket.socket()
         try:
@@ -35,7 +34,7 @@ class Clientcomm(object):
             print(e)
         else:
             self._xchange_key()
-            while self.is_socket_open and self.crypt_object is not None:
+            while self.is_socket_open:
                 try:
                     self.client_socket.settimeout(self.timer)
                     len_of_message = self.client_socket.recv(self.zfill_number).decode()
@@ -52,13 +51,13 @@ class Clientcomm(object):
                     self.client_socket.settimeout(self.timer)
                     encrypt_message = self.client_socket.recv(int(len_of_message)).decode()
                 except socket.timeout:
-                    print("timeout", self.server_ip)
                     continue
                 except Exception as e:
                     print(e)
                     sys.exit()
                 message = self.crypt_object.decrypt(encrypt_message).decode()
                 opcode, params = clientProtocol.clientProtocol.unpack(message)
+                # if a header was recved
                 if opcode == "01":
                     self._recv_file(params)
                 else:
@@ -66,11 +65,9 @@ class Clientcomm(object):
 
     def _recv_file(self, params):
         """
-        :param file_name:
-        :param file_length:
-        :return:
+        :param params: list of params (the header)
+        :return: put the data and the header of the file in the queue
         """
-
         number_of_part, file_name, data_len = int(params[0]), params[1], int(params[2])
         data_part = bytearray()
         while data_len >= 1024:
@@ -101,7 +98,7 @@ class Clientcomm(object):
 
     def _xchange_key(self):
         """
-        :return:
+        create the AES object
         """
         b, B = Encryption_Decryption.AES_encryption.get_dif_Num()
         message = clientProtocol.clientProtocol.build_part_of_key(B)
@@ -110,11 +107,13 @@ class Clientcomm(object):
             self.client_socket.send(f"{len_of_message}{message}".encode())
         except Exception as e:
             print(e)
+            sys.exit()
         try:
             len_of_message = self.client_socket.recv(self.zfill_number).decode()
             message = self.client_socket.recv(int(len_of_message)).decode()
         except Exception as e:
             print(e)
+            sys.exit()
         if message[:2] == "00":
             A = int(message[2:])
             crypt_object = Encryption_Decryption.AES_encryption.set_key(A, b)
@@ -123,8 +122,8 @@ class Clientcomm(object):
 
     def send(self, message):
         """
-        :param message:
-        :return:
+        :param message: the message to send
+        send the message after encrypt to the server
         """
         while self.crypt_object is None:
             continue
@@ -138,10 +137,9 @@ class Clientcomm(object):
 
     def send_file(self, data, header):
         """
-
-        :param data:
-        :param header:
-        :return:
+        send the file to the server
+        :param data: the data of the file
+        :param header: the header of the file
         """
         while self.crypt_object is None:
             continue
@@ -154,7 +152,7 @@ class Clientcomm(object):
 
     def close_socket(self):
         """
-        :return:
+        close the socket and the main loop
         """
         self.is_socket_open = False
         self.client_socket.close()

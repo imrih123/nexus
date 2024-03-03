@@ -16,6 +16,7 @@ class monitoring(object):
         self.path_to_monitor = path_to_monitor
         self.msgs_queue = queue
         self.list_of_new_files = []
+        # if there is no dir exists create one
         if not os.path.exists(path_to_monitor):
             os.mkdir(path_to_monitor)
         attrs = os.stat(self.path_to_monitor).st_file_attributes
@@ -27,14 +28,16 @@ class monitoring(object):
             # Add the 'hidden' attribute
             ctypes.windll.kernel32.SetFileAttributesW(self.path_to_monitor, attrs | 2)
 
+        # send all the existing files to the server
         self._send_existing_files()
+        # start the monitoring thread
         threading.Thread(target=self._monitoring_folder).start()
+        # make the first change so start the monitoring
         self.first_change()
 
     def first_change(self):
         """
-
-        :return:
+        make the first change
         """
         path = f"{self.path_to_monitor}\\a.txt"
         with open(path, 'w') as f:
@@ -44,8 +47,7 @@ class monitoring(object):
 
     def _send_existing_files(self):
         """
-
-        :return:
+        send all the existing files to the serve
         """
         list_of_file = os.listdir(self.path_to_monitor)
         for file_name in list_of_file:
@@ -70,25 +72,25 @@ class monitoring(object):
                 if result == win32event.WAIT_OBJECT_0:
                     for action, filename in win32file.ReadDirectoryChangesW(change_handle, 1024, True,
                                                                             win32con.FILE_NOTIFY_CHANGE_FILE_NAME | win32con.FILE_NOTIFY_CHANGE_DIR_NAME | win32con.FILE_NOTIFY_CHANGE_LAST_WRITE):
+                        # add file
                         if action == 1:
                             self.list_of_new_files.append(filename)
-
+                        # delete file
                         elif action == 2:
                             self.msgs_queue.put(("02", filename))
-
+                        # change file
                         elif action == 3:
                             if filename in self.list_of_new_files:
                                 self.list_of_new_files.remove(filename)
                                 self.msgs_queue.put(("01", filename))
                             else:
                                 self.msgs_queue.put(("03", filename))
-
+                        # change file
                         elif action == 4:
                             self.msgs_queue.put(("03", filename))
-
+                        # change name file
                         elif action == 5:
                             self.msgs_queue.put(("05", filename))
-
         except Exception as e:
             win32file.FindCloseChangeNotification(change_handle)
 

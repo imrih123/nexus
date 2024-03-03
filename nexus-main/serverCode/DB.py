@@ -3,6 +3,9 @@ import sqlite3
 
 class DBClass:
     def __init__(self):
+        """
+        set the curr and the conns and the names
+        """
         self.dbName = "NexusDB.sql"
         self.tblName = "torrnetTBL"
         self.conn = None
@@ -42,16 +45,19 @@ class DBClass:
             self.conn.commit()
 
     def deleteDb(self):
+        """
+        delete the db
+        :return:
+        """
         sql = f"DROP TABLE {self.tblName}"
         self.curr.execute(sql)
         self.conn.commit()
 
     def closeDb(self):
+        """
+        close the db
+        :return:
+        """
         self.curr.close()
         self.conn.close()
 
-
-
-if __name__ == '__main__':
-    db = DBClass()
-    db.deleteDb()
