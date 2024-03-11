@@ -3,7 +3,7 @@ from clientCode import ClientComm
 from allcode import settingCli
 
 
-def _build_com(main_queue, file_queue, ip, file_name):
+def _build_com(main_queue, file_queue, ip, file_name, len_of_part):
     """
 
     :param main_queue: the queue connect to the logic
@@ -18,7 +18,7 @@ def _build_com(main_queue, file_queue, ip, file_name):
         if index == -1:
             comm.close_socket()
         else:
-            request_part = clientProtocol.clientProtocol.request_part_file(file_name, index)
+            request_part = clientProtocol.clientProtocol.request_part_file(file_name, index, len_of_part)
             comm.send(request_part)
 
 

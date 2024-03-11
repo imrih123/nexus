@@ -1,4 +1,5 @@
 import wx
+import wx.adv
 from humanize import naturaldelta, naturalsize
 import os
 from pubsub import pub
@@ -16,13 +17,25 @@ class MyFrame(wx.Frame):
         :param logo_path: the path to the logo
         """
         super(MyFrame, self).__init__(parent, title=title, size=(680, 350))
+
+        # don't allow to change screen size
+        self.SetMaxSize((680, 350))
+        self.SetMinSize((680, 350))
+
         self.panel = wx.Panel(self)
         self.panel.SetBackgroundColour(f"#001f3f")
+        self.SetIcon(wx.Icon(f"{logo_path}icon.png", wx.BITMAP_TYPE_PNG))
         self.queue = queue
         # List of lists: [file_name, size, number of clients]
         self.file_list = []
         self.progress_dialog = None
-        self.total_bytes_download = 0
+        self.total_parts = 0
+        self.total_parts_download = 0
+        self.name_of_file = ""
+
+        help_icon = wx.ArtProvider.GetBitmap(wx.ART_INFORMATION, wx.ART_OTHER, (35, 35))
+        icon_button = wx.BitmapButton(self.panel, bitmap=help_icon, pos=(620, 14))
+        icon_button.Bind(wx.EVT_BUTTON, self.show_info_dialog)
 
         # upload button
         self.upload_button = wx.Button(self.panel, label="Upload", pos=(30, 220), size=(100, 60))
@@ -36,7 +49,7 @@ class MyFrame(wx.Frame):
 
         # the table of the files
         self.file_list_ctrl = wx.ListCtrl(self.panel, style=wx.LC_REPORT | wx.BORDER_SUNKEN, pos=(35, 15),
-                                          size=(600, 170))
+                                          size=(585, 170))
         self.file_list_ctrl.SetBackgroundColour(wx.Colour(255, 255, 255))
         self.file_list_ctrl.InsertColumn(0, 'File Name', width=140)
         self.file_list_ctrl.InsertColumn(1, 'Size', width=140)
@@ -56,17 +69,33 @@ class MyFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.on_download, self.download_button)
 
         # put the logo
-        image_path = logo_path
+        image_path = f"{logo_path}mylogo.png"
         image = wx.Image(image_path, wx.BITMAP_TYPE_ANY)
-        image = image.Scale(380, 115, wx.IMAGE_QUALITY_HIGH)
-        wx.StaticBitmap(self.panel, bitmap=wx.Bitmap(image), pos=(280, 195))
+        image = image.Scale(380, 75, wx.IMAGE_QUALITY_HIGH)
+        wx.StaticBitmap(self.panel, bitmap=wx.Bitmap(image), pos=(280, 220))
 
         self.Show()
 
         # bind the func to the strings
         pub.subscribe(self.update_file_list, "new list")
+        pub.subscribe(self.open_progress, "start progress")
+        pub.subscribe(self.close_progress, "close progress")
         pub.subscribe(self.show_download_progress, "new part")
         pub.subscribe(self.file_exists_error, "file exists")
+
+    def show_info_dialog(self, event):
+        """
+        shows info about the project
+        """
+        info = wx.adv.AboutDialogInfo()
+        info.SetName("imri system")
+        info.SetDescription("this system allow you to download files faster and safer")
+        info.SetCopyright("(C) 2024-2030")
+        info.AddDeveloper("Imri Hilel")
+        info.SetVersion("2.0")
+        info.SetName("nexus")
+        info.SetLicence("Microsoft \n Google \n NVIDIA")
+        wx.adv.AboutBox(info)
 
     def file_exists_error(self):
         """
@@ -124,38 +153,51 @@ class MyFrame(wx.Frame):
         else:
             wx.MessageBox("Please select a file to download.", "Error", wx.OK | wx.ICON_ERROR)
 
-    def show_download_progress(self, bytes_downloaded, total_bytes, name_of_file, first_part):
+    def open_progress(self, total_parts, name_of_file):
         """
 
-        :param bytes_downloaded: the number of byte downloaded
-        :param total_bytes: the total bytes to download
-        :param name_of_file: the name of the file
+        :param total_parts:
+        :param name_of_file:
+        :return:
         """
-        # If progress dialog doesn't exist and its the first part, create it
-        if self.progress_dialog is None and first_part:
-            self.progress_dialog = wx.ProgressDialog("Downloading", "Downloading file...", maximum=total_bytes,
+        if self.progress_dialog is None:
+            self.progress_dialog = wx.ProgressDialog("Downloading", "Downloading file...", maximum=total_parts,
                                                      parent=self, style=wx.PD_AUTO_HIDE | wx.PD_CAN_ABORT)
+            self.total_parts = total_parts
+            self.name_of_file = name_of_file
+
+    def close_progress(self):
+        """
+
+        :return:
+        """
+        if self.progress_dialog is not None:
+            if self.total_parts_download >= self.total_parts:
+                # Show a message box when the download is complete
+                wx.MessageBox(f"Download of {self.name_of_file} complete!", "Success", wx.OK | wx.ICON_INFORMATION,
+                              self)
+            else:
+                wx.MessageBox(f"Download of {self.name_of_file} fail!", "Fail", wx.OK | wx.ICON_INFORMATION,
+                              self)
+            self.resetdownload()
+
+    def show_download_progress(self):
+        """
+
+        """
         # if the progress dialog if open
         if self.progress_dialog is not None:
-            self.total_bytes_download += bytes_downloaded
+            self.total_parts_download += 1
 
-            abort = self.progress_dialog.Update(self.total_bytes_download)
-
+            abort = self.progress_dialog.Update(self.total_parts_download)
             # If download is complete, destroy the progress dialog and rest the progress screen
-            if total_bytes == self.total_bytes_download or not abort[0]:
-                self.progress_dialog.Destroy()
-                self.progress_dialog = None
-                self.upload_button.Enable(True)
-                self.download_button.Enable(True)
-                self.total_bytes_download = 0
+            if not abort[0]:
                 if not abort[0]:
-                    self.queue.put(("abort", name_of_file))
-                    wx.MessageBox(f"download of {name_of_file} was cancel ",
+                    self.queue.put(("abort", self.name_of_file))
+                    wx.MessageBox(f"download of {self.name_of_file} was cancel ",
                                   "Error",
                                   wx.OK | wx.ICON_WARNING)
-                else:
-                    # Show a message box when the download is complete
-                    wx.MessageBox(f"Download of {name_of_file} complete!", "Success", wx.OK | wx.ICON_INFORMATION, self)
+                self.resetdownload()
 
     def update_file_list(self, new_file_list):
         """
@@ -170,5 +212,18 @@ class MyFrame(wx.Frame):
                 self.file_list_ctrl.InsertItem(i, file_info[0])
                 self.file_list_ctrl.SetItem(i, 1, f"{naturalsize(file_info[1])}".lower())
                 self.file_list_ctrl.SetItem(i, 2, file_info[2])
-                self.file_list_ctrl.SetItem(i, 3, f"{naturaldelta(int(file_info[1]) / 81920 / int(file_info[2]))}")
+                self.file_list_ctrl.SetItem(i, 3, f"{naturaldelta(int(file_info[1]) / 819200 / int(file_info[2]))}")
 
+    def resetdownload(self):
+        """
+        restart all the vars
+        :return:
+        """
+        if self.progress_dialog is not None:
+            self.progress_dialog.Destroy()
+        self.progress_dialog = None
+        self.upload_button.Enable(True)
+        self.download_button.Enable(True)
+        self.total_parts_download = 0
+        self.total_parts = 0
+        self.name_of_file = ""

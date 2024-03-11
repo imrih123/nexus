@@ -82,6 +82,8 @@ class Clientcomm(object):
                 break
             except Exception as e:
                 print(e)
+                self.close_socket()
+                sys.exit()
             else:
                 data_len -= len(message)
         if data_len != 0:
@@ -93,6 +95,8 @@ class Clientcomm(object):
                 print("timeout")
             except Exception as e:
                 print(e)
+                self.close_socket()
+                sys.exit()
         data_part = self.crypt_object.decrypt(data_part)
         self.message_queue.put((self.server_ip, file_name, number_of_part, data_part))
 

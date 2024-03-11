@@ -6,6 +6,8 @@ import queue
 import os
 from allcode import settingSer
 import threading
+import multiprocessing
+from serverCode.Process_handle_file import handle_upload_file
 
 
 def handle_nitur_msgs(nitur_queue):
@@ -140,44 +142,32 @@ def create_uplaod_socket(params):
     path_of_file, ip = params[0], params[1]
     file_name = os.path.basename(path_of_file)
     torrents_db = DB.DBClass()
-    have_torrent = torrents_db.have_torrent(file_name)
     torrents_db.closeDb()
-    if not have_torrent:
-        upload_queue = queue.Queue()
-        # get port from the generator
-        port = next(unused_ports)
-        upload_comm = ServerComm.ServerComm(port, upload_queue, 8)
-        threading.Thread(target=handle_upload_file, args=(upload_queue, upload_comm)).start()
-    else:
-        # file already exists with that name
-        port = -1
+    upload_queue = multiprocessing.Queue()
+    list_queue = multiprocessing.Queue()
+    # get port from the generator
+    port = next(unused_ports)
+    threading.Thread(target=add_to_list, args=(list_queue,)).start()
+    multiprocessing.Process(target=handle_upload_file, args=(upload_queue, files_obj, port, list_queue,)).start()
     # send to the client the port
     response = serverProtocol.serverProtocol.Response_for_upload_request(path_of_file, port)
     general_comm.send(response, ip)
 
 
-def handle_upload_file(upload_queue, upload_comm):
+def add_to_list(list_queue):
     """
-    get the data from the queue and create the torrent file
-    :param upload_queue: the queue of the file
-    :param upload_comm: the comm
+
+    :param list_queue:
+    :return:
     """
-    torrents_db = DB.DBClass()
-    ip, message = upload_queue.get()
-    file_name, data = message[1], message[2]
-    if not torrents_db.have_torrent(file_name):
-        # create the torrent file
-        files_obj.create_torrent_file(data, file_name)
-        # add the torrent file to the db
-        torrents_db.add_torrent(file_name)
-        # add the file name to the list of file
-        open_files[file_name] = [len(data), 0]
+    file_name, len_data = list_queue.get()
+    if len_data == -1:
+        open_files[file_name][1] = open_files[file_name][1] + 1
         string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(open_files)
+        # send update to every client
         general_comm.sendall(string_of_open_files)
-    torrents_db.closeDb()
-    response = serverProtocol.serverProtocol.Response_for_upload()
-    upload_comm.send(response, ip)
-    upload_comm.close_socket()
+    else:
+        open_files[file_name] = [len_data, 0]
 
 
 def handle_disconnect_nitur(params):
@@ -222,7 +212,7 @@ if __name__ == '__main__':
 
     unused_ports = (x for x in range(2000, 2500))
 
-    general_queue = queue.Queue()
+    general_queue = multiprocessing.Queue()
     nitur_queue = queue.Queue()
 
     # the general comm

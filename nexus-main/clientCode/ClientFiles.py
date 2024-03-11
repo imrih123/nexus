@@ -1,22 +1,9 @@
 import os
-from allcode import settingCli
 
 
 class client_files(object):
     @staticmethod
-    def add_part_of_file(path_of_file, number_of_part, data):
-        """
-        add the data to fhe file
-        :param path_of_file: path of the file
-        :param number_of_part: nunber of the part
-        :param data: data of the file
-        """
-        with open(fr"{path_of_file}", 'wb') as f:
-            f.seek(number_of_part * settingCli.BLOCKSIZE)
-            f.write(data)
-
-    @staticmethod
-    def get_part_of_file(path_of_file, number_of_part):
+    def get_part_of_file(path_of_file, number_of_part, len_of_part):
         """
 
         :param path_of_file: path of the file
@@ -27,8 +14,8 @@ class client_files(object):
             if number_of_part == -1:
                 data = f.read()
             else:
-                f.seek(number_of_part * settingCli.BLOCKSIZE)
-                data = f.read(settingCli.BLOCKSIZE)
+                f.seek(number_of_part * len_of_part)
+                data = f.read(len_of_part)
         return data
 
     @staticmethod

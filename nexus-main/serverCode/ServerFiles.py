@@ -2,7 +2,6 @@ from allcode import Encryption_Decryption
 import math
 import json
 import os
-from allcode import settingSer
 import ctypes
 
 
@@ -26,16 +25,19 @@ class Server_files(object):
         :param filename: the name of the file
         """
         list_of_hash = []
-        for i in range(math.ceil(len(data)/settingSer.BLOCKSIZE)):
-            data_part = data[i*settingSer.BLOCKSIZE:(i+1)*settingSer.BLOCKSIZE]
+        # do-to calculate the len of each part
+        len_of_part = 0
+        len_of_part = max(4096, len_of_part)
+        for i in range(math.ceil(len(data)/len_of_part)):
+            data_part = data[i*len_of_part:(i+1)*len_of_part]
             list_of_hash.append(str(Encryption_Decryption.AES_encryption.hash(data_part)))
         full_hash = str(Encryption_Decryption.AES_encryption.hash(data))
         torrent_file = self._build_torrent_file\
-            (data, filename, full_hash, list_of_hash)
+            (data, filename, full_hash, list_of_hash, len_of_part)
         with open(f"{self.torrent_files_path}\\{filename}.json", 'w') as f:
             json.dump(torrent_file, f)
 
-    def _build_torrent_file(self, file_data, file_name, full_hash, parts_hash):
+    def _build_torrent_file(self, file_data, file_name, full_hash, parts_hash, len_of_part):
         """
 
         :param file_data: the data
@@ -46,7 +48,7 @@ class Server_files(object):
         """
         json_file = {"file name": file_name, "open ip": [],
                      "len of file": len(file_data), "number of pieces": len(parts_hash),
-                     "hash of pieces": parts_hash, "full hash": full_hash}
+                     "hash of pieces": parts_hash, "full hash": full_hash, "part len": len_of_part}
         return json_file
 
     def add_ip_to_torrent(self, file_name, ip):

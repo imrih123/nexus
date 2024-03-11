@@ -58,13 +58,14 @@ class clientProtocol(object):
         return f"$%$01$%${filename}"
 
     @staticmethod
-    def request_part_file(file_name, number_of_part):
+    def request_part_file(file_name, number_of_part, len_of_part):
         """
         :param file_name: the file name
         :param number_of_part: the number of the part
+        :param len_of_part: the len of each part
         :return: string using the format
         """
-        return f"01$%${number_of_part}$%${file_name}"
+        return f"01$%${number_of_part}$%${file_name}$%${len_of_part}"
 
     @staticmethod
     def send_file_part(file_name, number_of_part):
