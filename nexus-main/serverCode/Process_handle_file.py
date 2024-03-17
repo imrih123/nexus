@@ -1,17 +1,15 @@
 from serverCode import DB
-from serverCode import serverProtocol
 from allcode import ServerComm
 
 
-def handle_upload_file(upload_queue, files_obj, port, update_list_queue):
+def handle_upload_file(upload_queue, files_obj, port, update_list_queue, path_of_file):
     """
-
-    :param upload_queue:
-    :param upload_comm:
-    :param general_comm:
-    :param open_files:
-    :param files_obj:
-    :return:
+    open a server and recv a file from the client
+    :param upload_queue: the queue from the comm
+    :param files_obj: files object
+    :param port: port of server
+    :param update_list_queue: queue to the logic
+    -1 same file already exist, -2 same name already exists
     """
 
     upload_comm = ServerComm.ServerComm(port, upload_queue, 8)
@@ -24,15 +22,25 @@ def handle_upload_file(upload_queue, files_obj, port, update_list_queue):
         # add the torrent file to the db
         torrents_db.add_torrent(file_name)
         # add the file name to the list of file
-        update_list_queue.put((file_name, len(data)))
+        update_list_queue.put((file_name, ip, path_of_file, len(data)))
     else:
         temp = f"temp{port}"
         files_obj.create_torrent_file(data, temp)
-        test = files_obj.get_torrent_file(temp)
-        if test == files_obj.get_torrent_file(file_name):
+
+        # check if the file is the same as the origin file, create a torrent and compare if they are the same
+        # (without the same name and open ip header
+        temp_torrent = files_obj.get_torrent_file(temp, False)
+        temp_torrent = list(temp_torrent.values())[2:]
+
+        files_obj.delete_temp(temp)
+
+        origin_torrent = files_obj.get_torrent_file(file_name, False)
+        origin_torrent = list(origin_torrent.values())[2:]
+
+        if temp_torrent == origin_torrent:
             files_obj.add_ip_to_torrent(file_name, ip)
-            update_list_queue.put((file_name, -1))
+            update_list_queue.put((file_name, ip, path_of_file, -1))
+        else:
+            update_list_queue.put((file_name, ip, path_of_file, -2))
     torrents_db.closeDb()
-    response = serverProtocol.serverProtocol.Response_for_upload()
-    upload_comm.send(response, ip)
     upload_comm.close_socket()

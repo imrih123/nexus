@@ -49,8 +49,17 @@ class serverProtocol(object):
         return f"02$%${port}$%${path_of_file}"
 
     @staticmethod
-    def Response_for_upload():
-        return "111"
+    def Response_for_upload(bol, path):
+        """
+
+        :param bol: fail or pass
+        :return: string protocol
+        """
+
+        code = "222"
+        if bol:
+            code = "111"
+        return f"04$%${code}$%${path}"
 
     @staticmethod
     def Delete_file_from_folder(file_name):

@@ -140,34 +140,34 @@ def create_uplaod_socket(params):
     :return:
     """
     path_of_file, ip = params[0], params[1]
-    file_name = os.path.basename(path_of_file)
+    # file_name = os.path.basename(path_of_file)
     torrents_db = DB.DBClass()
     torrents_db.closeDb()
     upload_queue = multiprocessing.Queue()
     list_queue = multiprocessing.Queue()
     # get port from the generator
     port = next(unused_ports)
-    threading.Thread(target=add_to_list, args=(list_queue,)).start()
-    multiprocessing.Process(target=handle_upload_file, args=(upload_queue, files_obj, port, list_queue,)).start()
+    threading.Thread(target=_after_upload, args=(list_queue,)).start()
+    multiprocessing.Process(target=handle_upload_file, args=(upload_queue, files_obj, port, list_queue, path_of_file,)).start()
     # send to the client the port
     response = serverProtocol.serverProtocol.Response_for_upload_request(path_of_file, port)
     general_comm.send(response, ip)
 
 
-def add_to_list(list_queue):
+def _after_upload(list_queue):
+    """
+    send update to the client and update the list of open files
+    :param list_queue: the queue connect to the upload process
     """
 
-    :param list_queue:
-    :return:
-    """
-    file_name, len_data = list_queue.get()
-    if len_data == -1:
-        open_files[file_name][1] = open_files[file_name][1] + 1
-        string_of_open_files = serverProtocol.serverProtocol.Create_string_of_list(open_files)
-        # send update to every client
-        general_comm.sendall(string_of_open_files)
-    else:
+    boolean = True
+    file_name, ip, path, len_data = list_queue.get()
+    if len_data == -2:
+        boolean = False
+    elif len_data != -1:
         open_files[file_name] = [len_data, 0]
+    response = serverProtocol.serverProtocol.Response_for_upload(boolean, path)
+    general_comm.send(response, ip)
 
 
 def handle_disconnect_nitur(params):

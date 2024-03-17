@@ -82,6 +82,17 @@ class MyFrame(wx.Frame):
         pub.subscribe(self.close_progress, "close progress")
         pub.subscribe(self.show_download_progress, "new part")
         pub.subscribe(self.file_exists_error, "file exists")
+        pub.subscribe(self.after_upload, "after upload")
+
+    def after_upload(self):
+        """
+
+        :return:
+        """
+        # Show a message box when the upload is complete
+        wx.MessageBox(f"Upload complete!", "Success", wx.OK | wx.ICON_INFORMATION,
+                      self)
+        self.upload_button.Enable(True)
 
     def show_info_dialog(self, event):
         """
@@ -104,6 +115,7 @@ class MyFrame(wx.Frame):
         wx.MessageBox("file with that name already exists in the system",
                                "Error",
                                wx.OK | wx.ICON_WARNING)
+        self.upload_button.Enable(True)
 
     def on_upload(self, event):
         """
@@ -122,6 +134,7 @@ class MyFrame(wx.Frame):
             else:
                 # let the logic know upload is requested
                 self.queue.put(("upload", file_path))
+                self.upload_button.Enable(False)
 
         dialog.Destroy()
 
@@ -144,7 +157,6 @@ class MyFrame(wx.Frame):
             # if the user choose dirctory
             elif os.path.isdir(selected_file):
                 wx.MessageBox("cant download directory, compress to zip file", "Error", wx.OK | wx.ICON_ERROR)
-
             else:
                 # let the logic know download is requested
                 self.queue.put(("download", selected_file))

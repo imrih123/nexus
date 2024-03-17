@@ -218,9 +218,20 @@ def create_socket_upload(params):
         header = clientProtocol.clientProtocol.upload_file(file_name)
         # send the data
         upload_comm.send_file(data, header)
-        response = upload_queue.get()
-        if response == "111":
-            ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
+
+
+def get_response_server(params):
+    """
+
+    :param params:
+    :return:
+    """
+    response, path = params[0], params[1]
+    if response == "111":
+        data = ClientFiles.client_files.get_part_of_file(path, -1, -1)
+        file_name = os.path.basename(path)
+        ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
+        wx.CallAfter(pub.sendMessage, "after upload")
     else:
         # if file already exists
         wx.CallAfter(pub.sendMessage, "file exists")
@@ -260,7 +271,9 @@ def get_message_from_gui(gui_queue):
 if __name__ == '__main__':
     server_ip = settingCli.SERVER_IP
     # all the general opcodes and funcs
-    general_commands = {"01": p2p_download, "02": create_socket_upload, "03": create_list_of_files}
+    general_commands = {"01": p2p_download, "02": create_socket_upload, "03": create_list_of_files
+        , "04": get_response_server}
+
     general_queue = queue.Queue()
     gui_queue = queue.Queue()
     list_of_open_file = []

@@ -25,9 +25,8 @@ class Server_files(object):
         :param filename: the name of the file
         """
         list_of_hash = []
-        # do-to calculate the len of each part
-        len_of_part = 0
-        len_of_part = max(4096, len_of_part)
+        len_of_part = len(data)
+        len_of_part = max(512*1024, len_of_part)
         for i in range(math.ceil(len(data)/len_of_part)):
             data_part = data[i*len_of_part:(i+1)*len_of_part]
             list_of_hash.append(str(Encryption_Decryption.AES_encryption.hash(data_part)))
@@ -119,3 +118,11 @@ class Server_files(object):
 
         return list_of_deleted_ips
 
+    def delete_temp(self, file_name):
+        """
+        delete the temp torrent
+        :param file_name: file name
+        :return:
+        """
+        if os.path.exists(f"{self.torrent_files_path}\\{file_name}"):
+            os.remove(f"{self.torrent_files_path}\\{file_name}")

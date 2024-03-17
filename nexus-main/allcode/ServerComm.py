@@ -164,7 +164,8 @@ class ServerComm(object):
             except Exception as e:
                 print(e)
                 del self.open_clients[current_socket]
-            len_encrypt_data -= 1024
+            else:
+                len_encrypt_data -= len(data)
         if len_encrypt_data != 0:
             try:
                 data = current_socket.recv(len_encrypt_data)
