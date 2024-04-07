@@ -37,5 +37,9 @@ class client_files(object):
         :param path_of_file:
         """
         if os.path.exists(fr"{path_of_file}"):
-            os.remove(fr"{path_of_file}")
+            try:
+                os.remove(fr"{path_of_file}")
+            except Exception as e:
+                print(e, "file is open")
+
 

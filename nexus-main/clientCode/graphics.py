@@ -34,17 +34,18 @@ class MyFrame(wx.Frame):
         self.name_of_file = ""
 
         help_icon = wx.ArtProvider.GetBitmap(wx.ART_INFORMATION, wx.ART_OTHER, (35, 35))
+
         icon_button = wx.BitmapButton(self.panel, bitmap=help_icon, pos=(620, 14))
         icon_button.Bind(wx.EVT_BUTTON, self.show_info_dialog)
 
         # upload button
         self.upload_button = wx.Button(self.panel, label="Upload", pos=(30, 220), size=(100, 60))
-        font = wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.NORMAL, faceName="Avenir")
+        font = wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.NORMAL, faceName="Arial Rounded MT Bold")
         self.upload_button.SetFont(font)
 
         # download button
         self.download_button = wx.Button(self.panel, label="Download", pos=(160, 220), size=(100, 60))
-        font = wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.NORMAL, faceName="Avenir")
+        font = wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.NORMAL, faceName="Arial Rounded MT Bold")
         self.download_button.SetFont(font)
 
         # the table of the files
@@ -224,7 +225,7 @@ class MyFrame(wx.Frame):
                 self.file_list_ctrl.InsertItem(i, file_info[0])
                 self.file_list_ctrl.SetItem(i, 1, f"{naturalsize(file_info[1])}".lower())
                 self.file_list_ctrl.SetItem(i, 2, file_info[2])
-                self.file_list_ctrl.SetItem(i, 3, f"{naturaldelta(int(file_info[1]) / 819200 / int(file_info[2]))}")
+                self.file_list_ctrl.SetItem(i, 3, f"{naturaldelta(int(file_info[1]) / settingCli.BYTES_PER_SECOND / int(file_info[2])) + settingCli.time_to_connect}")
 
     def resetdownload(self):
         """
