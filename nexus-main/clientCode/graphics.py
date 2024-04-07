@@ -47,7 +47,7 @@ class MyFrame(wx.Frame):
         self.download_button = wx.Button(self.panel, label="Download", pos=(160, 220), size=(100, 60))
         font = wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.NORMAL, faceName="Arial Rounded MT Bold")
         self.download_button.SetFont(font)
-
+        self.Button
         # the table of the files
         self.file_list_ctrl = wx.ListCtrl(self.panel, style=wx.LC_REPORT | wx.BORDER_SUNKEN, pos=(35, 15),
                                           size=(585, 170))
@@ -225,7 +225,7 @@ class MyFrame(wx.Frame):
                 self.file_list_ctrl.InsertItem(i, file_info[0])
                 self.file_list_ctrl.SetItem(i, 1, f"{naturalsize(file_info[1])}".lower())
                 self.file_list_ctrl.SetItem(i, 2, file_info[2])
-                self.file_list_ctrl.SetItem(i, 3, f"{naturaldelta(int(file_info[1]) / settingCli.BYTES_PER_SECOND / int(file_info[2])) + settingCli.time_to_connect}")
+                self.file_list_ctrl.SetItem(i, 3, f"{naturaldelta((int(file_info[1]) / settingCli.BYTES_PER_SECOND / int(file_info[2])) + settingCli.time_to_connect)}")
 
     def resetdownload(self):
         """
