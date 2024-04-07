@@ -33,10 +33,10 @@ class MyFrame(wx.Frame):
         self.total_parts_download = 0
         self.name_of_file = ""
 
-        help_icon = wx.ArtProvider.GetBitmap(wx.ART_INFORMATION, wx.ART_OTHER, (35, 35))
-
-        icon_button = wx.BitmapButton(self.panel, bitmap=help_icon, pos=(620, 14))
-        icon_button.Bind(wx.EVT_BUTTON, self.show_info_dialog)
+        # help_icon = wx.ArtProvider.GetBitmap(wx.ART_INFORMATION, wx.ART_OTHER, (35, 35))
+        help_icon = wx.Bitmap(fr"T:\public\יב\imri\nexus-main\info.png")
+        icon_button = wx.StaticBitmap(self.panel, bitmap=help_icon, pos=(624, 16))
+        icon_button.Bind(wx.EVT_LEFT_DOWN, self.show_info_dialog)
 
         # upload button
         self.upload_button = wx.Button(self.panel, label="Upload", pos=(30, 220), size=(100, 60))
@@ -47,7 +47,6 @@ class MyFrame(wx.Frame):
         self.download_button = wx.Button(self.panel, label="Download", pos=(160, 220), size=(100, 60))
         font = wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.NORMAL, faceName="Arial Rounded MT Bold")
         self.download_button.SetFont(font)
-        self.Button
         # the table of the files
         self.file_list_ctrl = wx.ListCtrl(self.panel, style=wx.LC_REPORT | wx.BORDER_SUNKEN, pos=(35, 15),
                                           size=(585, 170))
