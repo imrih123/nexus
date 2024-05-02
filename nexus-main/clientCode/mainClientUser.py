@@ -29,12 +29,50 @@ def handle_general_msgs(general_queue):
             general_commands[opcode](params)
 
 
+def handle_message_from_gui(gui_queue):
+    """
+    send to the server the command the user did
+    :param gui_queue: the queue connect the qui to the logic
+    """
+    global abort
+    while True:
+        order, path = gui_queue.get()
+        if order == "download":
+            message = clientProtocol.clientProtocol.request_torrent_file(path)
+        elif order == "upload":
+            message = clientProtocol.clientProtocol.request_upload(path)
+        elif order == "abort":
+            abort = True
+            # close the loop of the download
+            continue
+        else:
+            continue
+        general_comm.send(message)
+
+
+def create_socket_upload(params):
+    """
+    create a comm and upload the file
+    :param params:
+    :return:
+    """
+    port, path_of_file = int(params[0]), params[1]
+    if port != -1:
+        upload_queue = queue.Queue()
+        file_name = os.path.basename(path_of_file)
+        # create comm
+        upload_comm = ClientComm.Clientcomm(server_ip, upload_queue, port, 8)
+        data = ClientFiles.client_files.get_part_of_file(path_of_file, -1)
+        header = clientProtocol.clientProtocol.upload_file(file_name)
+        # send the data
+        upload_comm.send_file(data, header)
+
+
 def p2p_download(params):
     """
     download the file using p2p connection
     :param params:list of the params
     """
-
     json_string = params[3]
     list_of_processes = []
     torrnet_dict = json.loads(json_string)
@@ -48,6 +86,7 @@ def p2p_download(params):
     list_of_pieces = [0 for _ in range(number_of_pieces)]
     wx.CallAfter(pub.sendMessage, "start progress", total_parts=number_of_pieces,
                  name_of_file=file_name)
+
     # start a thread to get the parts from the queue
     threading.Thread(target=_get_parts_from_queue, args=(comms, torrnet_dict['hash of pieces'], torrnet_dict['full hash'], file_queue, file_name, list_of_pieces, len_of_part,)).start()
 
@@ -138,17 +177,23 @@ def _get_parts_from_queue(comms, list_of_hash, full_data_hash, file_queue, file_
                 else:
                     comms[ip][0].put(index)
     print(f"the time to download is {time.time() - first_time}")
+
+    data = ClientFiles.client_files.get_part_of_file(path, -1)
+
+    full_hash = Encryption_Decryption.AES_encryption.hash(data)
+    # check the full hash
+    if full_data_hash == str(full_hash):
+        # confirm that the full hash is good
+        wx.CallAfter(pub.sendMessage, "new part")
+
+        ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
+
     wx.CallAfter(pub.sendMessage, "close progress")
     # close all the sockets
     for ip in comms:
         comms[ip][0].put(-1)
     abort = False
     build_file.put((0, -1))
-    data = ClientFiles.client_files.get_part_of_file(path, -1, -1)
-    full_hash = Encryption_Decryption.AES_encryption.hash(data)
-    # check the full hash
-    if full_data_hash == str(full_hash):
-        ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
 
 
 def _build_file(build_queue, path, len_of_part):
@@ -202,41 +247,6 @@ def _find_first(list_of_pieces, cant_recv, number_found=-1):
     return index
 
 
-def create_socket_upload(params):
-    """
-    create a comm and upload the file
-    :param params:
-    :return:
-    """
-    port, path_of_file = int(params[0]), params[1]
-    if port != -1:
-        upload_queue = queue.Queue()
-        file_name = os.path.basename(path_of_file)
-        # create comm
-        upload_comm = ClientComm.Clientcomm(server_ip, upload_queue, port, 8)
-        data = ClientFiles.client_files.get_part_of_file(path_of_file, -1, -1)
-        header = clientProtocol.clientProtocol.upload_file(file_name)
-        # send the data
-        upload_comm.send_file(data, header)
-
-
-def get_response_server(params):
-    """
-
-    :param params:
-    :return:
-    """
-    response, path = params[0], params[1]
-    if response == "111":
-        data = ClientFiles.client_files.get_part_of_file(path, -1, -1)
-        file_name = os.path.basename(path)
-        ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
-        wx.CallAfter(pub.sendMessage, "after upload")
-    else:
-        # if file already exists
-        wx.CallAfter(pub.sendMessage, "file exists")
-
-
 def create_list_of_files(params):
     """
     call a func in the graphics to update the list of file
@@ -247,25 +257,21 @@ def create_list_of_files(params):
     wx.CallAfter(pub.sendMessage, "new list", new_file_list=list_of_files[0])
 
 
-def get_message_from_gui(gui_queue):
+def get_response_server(params):
     """
-    send to the server the command the user did
-    :param gui_queue: the queue connect the qui to the logic
+    get the response from the server after upload and save the file if dosen't exists
+    :param params:
+    :return:
     """
-    global abort
-    while True:
-        order, path = gui_queue.get()
-        if order == "download":
-            message = clientProtocol.clientProtocol.request_torrent_file(path)
-        elif order == "upload":
-            message = clientProtocol.clientProtocol.request_upload(path)
-        elif order == "abort":
-            abort = True
-            # close the loop of the download
-            continue
-        else:
-            continue
-        general_comm.send(message)
+    response, path = params[0], params[1]
+    if response == "111":
+        data = ClientFiles.client_files.get_part_of_file(path, -1)
+        file_name = os.path.basename(path)
+        ClientFiles.client_files.save_file(settingCli.NITUR_FOLDER, file_name, data)
+        wx.CallAfter(pub.sendMessage, "after upload")
+    else:
+        # if file already exists
+        wx.CallAfter(pub.sendMessage, "file exists")
 
 
 if __name__ == '__main__':
@@ -276,14 +282,13 @@ if __name__ == '__main__':
 
     general_queue = queue.Queue()
     gui_queue = queue.Queue()
-    list_of_open_file = []
     abort = False
 
     # create the general comm
     general_comm = ClientComm.Clientcomm(server_ip, general_queue, 1500, 6)
     # start the handles
     threading.Thread(target=handle_general_msgs, args=(general_queue, )).start()
-    threading.Thread(target=get_message_from_gui, args=(gui_queue,)).start()
+    threading.Thread(target=handle_message_from_gui, args=(gui_queue,)).start()
     # start the main thread of the graphics
     app = wx.App()
     frame = graphics.MyFrame(None, "nexus", gui_queue, logo_path=settingCli.IMAGES_PATH)

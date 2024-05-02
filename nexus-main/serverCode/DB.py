@@ -60,4 +60,3 @@ class DBClass:
         """
         self.curr.close()
         self.conn.close()
-

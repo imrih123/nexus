@@ -10,8 +10,8 @@ class monitoring(object):
     def __init__(self, path_to_monitor, queue):
         """
 
-        :param path_to_monitor:
-        :param queue:
+        :param path_to_monitor: the path of the hidden file
+        :param queue: the queue to put all the changes of the folder
         """
         self.path_to_monitor = path_to_monitor
         self.msgs_queue = queue

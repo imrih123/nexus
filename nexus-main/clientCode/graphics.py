@@ -175,7 +175,8 @@ class MyFrame(wx.Frame):
         if self.progress_dialog is None:
             self.progress_dialog = wx.ProgressDialog("Downloading", "Downloading file...", maximum=total_parts,
                                                      parent=self, style=wx.PD_AUTO_HIDE | wx.PD_CAN_ABORT)
-            self.total_parts = total_parts
+            # all the parts and the full hash
+            self.total_parts = total_parts + 1
             self.name_of_file = name_of_file
 
     def close_progress(self):

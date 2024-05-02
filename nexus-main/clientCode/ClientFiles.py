@@ -1,9 +1,10 @@
 import os
+from allcode import settingSer
 
 
 class client_files(object):
     @staticmethod
-    def get_part_of_file(path_of_file, number_of_part, len_of_part):
+    def get_part_of_file(path_of_file, number_of_part):
         """
 
         :param path_of_file: path of the file
@@ -14,8 +15,8 @@ class client_files(object):
             if number_of_part == -1:
                 data = f.read()
             else:
-                f.seek(number_of_part * len_of_part)
-                data = f.read(len_of_part)
+                f.seek(number_of_part * settingSer.len_of_part_of_file)
+                data = f.read(settingSer.len_of_part_of_file)
         return data
 
     @staticmethod

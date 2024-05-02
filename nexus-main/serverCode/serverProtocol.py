@@ -22,13 +22,13 @@ class serverProtocol(object):
         return opcode, params
 
     @staticmethod
-    def build_part_of_key(A):
+    def build_part_of_key(B):
         """
 
-        :param A: part of the key
+        :param B: part of the key
         :return: string using format
         """
-        return f"00{A}"
+        return f"00{B}"
 
     @staticmethod
     def Response_for_torrent_request(file_name):

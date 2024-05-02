@@ -101,14 +101,6 @@ class clientProtocol(object):
         return f"03$%${file_name}"
 
     @staticmethod
-    def changed_file_name_old_nitur(file_name):
-        """
-        :param file_name: file name
-        :return: sting using format
-        """
-        return f"04$%${file_name}"
-
-    @staticmethod
     def changed_file_name_new_nitur(file_name):
         """
         :param file_name: file name

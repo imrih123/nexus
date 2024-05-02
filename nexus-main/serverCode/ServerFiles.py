@@ -3,6 +3,7 @@ import math
 import json
 import os
 import ctypes
+from allcode import settingSer
 
 
 class Server_files(object):
@@ -25,14 +26,12 @@ class Server_files(object):
         :param filename: the name of the file
         """
         list_of_hash = []
-        len_of_part = len(data)
-        len_of_part = max(512*1024, len_of_part)
-        for i in range(math.ceil(len(data)/len_of_part)):
-            data_part = data[i*len_of_part:(i+1)*len_of_part]
+        for i in range(math.ceil(len(data)/settingSer.len_of_part_of_file)):
+            data_part = data[i*settingSer.len_of_part_of_file:(i+1)*settingSer.len_of_part_of_file]
             list_of_hash.append(str(Encryption_Decryption.AES_encryption.hash(data_part)))
         full_hash = str(Encryption_Decryption.AES_encryption.hash(data))
         torrent_file = self._build_torrent_file\
-            (data, filename, full_hash, list_of_hash, len_of_part)
+            (data, filename, full_hash, list_of_hash, settingSer.len_of_part_of_file)
         with open(f"{self.torrent_files_path}\\{filename}.json", 'w') as f:
             json.dump(torrent_file, f)
 
