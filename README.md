@@ -9,9 +9,9 @@ Nexus is a torrent client and server network created as a school project.
 ```cmd
 git clone https://github.com/imrih123/nexus
 ```
-2. run installRequirements.bat to install all requirements:
+2. in order to install al the requirements use the followwing commands:
 ```cmd
-./installRequirements.bat
+pip install –r requirements.txt
 ```
 
 ------------------------------------------------------
