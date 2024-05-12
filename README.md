@@ -11,6 +11,7 @@ git clone https://github.com/imrih123/nexus
 ```
 2. in order to install al the requirements use the followwing commands:
 ```cmd
+cd final-nexus
 pip install –r requirements.txt
 ```
 
