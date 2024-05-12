@@ -86,8 +86,7 @@ class MyFrame(wx.Frame):
 
     def after_upload(self):
         """
-
-        :return:
+        shows that the upload was good
         """
         # Show a message box when the upload is complete
         wx.MessageBox(f"Upload complete!", "Success", wx.OK | wx.ICON_INFORMATION,
@@ -167,21 +166,22 @@ class MyFrame(wx.Frame):
 
     def open_progress(self, total_parts, name_of_file):
         """
-
-        :param total_parts:
-        :param name_of_file:
+        opens the progress file
+        :param total_parts:number of total parts
+        :param name_of_file: the name of the file
         :return:
         """
         if self.progress_dialog is None:
-            self.progress_dialog = wx.ProgressDialog("Downloading", "Downloading file...", maximum=total_parts,
+            self.total_parts = total_parts + 1
+
+            self.progress_dialog = wx.ProgressDialog("Downloading", "Downloading file...", maximum=self.total_parts,
                                                      parent=self, style=wx.PD_AUTO_HIDE | wx.PD_CAN_ABORT)
             # all the parts and the full hash
-            self.total_parts = total_parts + 1
             self.name_of_file = name_of_file
 
     def close_progress(self):
         """
-
+            closing the progress and checks if the download fail or not
         :return:
         """
         if self.progress_dialog is not None:
@@ -196,12 +196,11 @@ class MyFrame(wx.Frame):
 
     def show_download_progress(self):
         """
-
+            update the progress after a part was downloaded and checks if abort was clicked
         """
         # if the progress dialog if open
         if self.progress_dialog is not None:
             self.total_parts_download += 1
-
             abort = self.progress_dialog.Update(self.total_parts_download)
             # If download is complete, destroy the progress dialog and rest the progress screen
             if not abort[0]:
@@ -225,7 +224,7 @@ class MyFrame(wx.Frame):
                 self.file_list_ctrl.InsertItem(i, file_info[0])
                 self.file_list_ctrl.SetItem(i, 1, f"{naturalsize(file_info[1])}".lower())
                 self.file_list_ctrl.SetItem(i, 2, file_info[2])
-                self.file_list_ctrl.SetItem(i, 3, f"{naturaldelta((int(file_info[1]) / settingCli.BYTES_PER_SECOND / int(file_info[2])) + settingCli.time_to_connect)}")
+                self.file_list_ctrl.SetItem(i, 3, f"{naturaldelta((int(file_info[1]) / settingCli.BYTES_PER_SECOND / int(file_info[2])) + settingCli.time_to_connect_to_p2p)}")
 
     def resetdownload(self):
         """
